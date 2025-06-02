@@ -24,108 +24,186 @@
             flex-direction: column;
             gap: 20px;
         }
+        .category-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
         .category {
             background-color: #f8f9fa;
             padding: 20px;
             border-radius: 10px;
+            transition: all 0.3s ease;
         }
-        .category h2 {
+        .category[data-order="1"] { 
+            order: 1;
             margin-top: 0;
-            color: #333;
-            font-size: 1.5em;
+        }
+        .category[data-order="2"] { 
+            order: 2;
+            margin-top: 20px;
+        }
+        .category[data-order="3"] { 
+            order: 3;
+            margin-top: 20px;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 15px;
         }
-        .selection-box {
-            display: inline-flex;
+        .category-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+        .info-button {
+            background: none;
+            border: none;
+            color: #4a90e2;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
             align-items: center;
-            padding: 10px 15px;
-            margin: 5px;
-            border: 2px solid #ddd;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .info-button:hover {
+            transform: scale(1.1);
+            background-color: #f5f9ff;
+        }
+        .selection-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px;
+            margin: 4px;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             background-color: white;
-            min-width: 120px;
+            width: 105px;
+            height: 135px;
+            position: relative;
+            z-index: 1;
         }
         .selection-box:hover {
-            border-color: #007bff;
+            border-color: #4a90e2;
             transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         .selection-box.active {
-            border-color: #007bff;
-            background-color: #e7f1ff;
+            border-color: #4a90e2;
+            background-color: #f5f9ff;
         }
         .selection-box.inactive {
             opacity: 0.5;
             cursor: not-allowed;
         }
         .selection-box.selected {
-            border-color: #28a745;
-            background-color: #e8f5e9;
+            border-color: #2ecc71;
+            background-color: #f0fff4;
         }
         .material-icon, .technique-icon, .form-icon {
-            width: 48px;
-            height: 48px;
-            margin-right: 12px;
+            width: 85px;
+            height: 85px;
             object-fit: contain;
             border-radius: 8px;
-            border: 2px solid #ddd;
-            padding: 4px;
+            border: 1px solid #e0e0e0;
+            padding: 3px;
             background-color: white;
             transition: all 0.3s ease;
+            margin-bottom: 4px;
         }
         .selection-box:hover .material-icon,
         .selection-box:hover .technique-icon,
         .selection-box:hover .form-icon {
-            border-color: #007bff;
+            border-color: #4a90e2;
             transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         .selection-box.active .material-icon,
         .selection-box.active .technique-icon,
         .selection-box.active .form-icon {
-            border-color: #007bff;
-            background-color: #e7f1ff;
+            border-color: #4a90e2;
+            background-color: #f5f9ff;
         }
-        .material-name {
-            flex-grow: 1;
+        .material-name, .technique-name, .form-name {
             text-align: center;
+            font-size: 0.8em;
+            color: #333;
+            margin-top: 2px;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.1;
+            height: 2.2em;
+            padding: 0 1px;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+        .selection-boxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            padding: 4px;
         }
         .file-upload {
-            margin-bottom: 20px;
-            padding: 20px;
+            margin-top: 30px;
+            padding: 15px;
             background-color: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #e0e0e0;
         }
         .file-upload input[type="file"] {
             display: none;
         }
         .file-upload label {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 8px 16px;
+            background-color: #4a90e2;
             color: white;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 0.9em;
         }
         .file-upload label:hover {
-            background-color: #0056b3;
+            background-color: #357abd;
         }
         .file-name {
-            margin-top: 10px;
+            margin-top: 8px;
             color: #666;
+            font-size: 0.9em;
         }
         .start-selection {
             text-align: center;
             margin-bottom: 30px;
         }
         .start-selection .btn {
+            background-color: #4a90e2;
+            border-color: #4a90e2;
+            color: white;
             margin: 0 10px;
             padding: 10px 30px;
             font-size: 1.2em;
+        }
+        .start-selection .btn:hover {
+            background-color: #357abd;
+            border-color: #357abd;
         }
         .reset-button {
             position: fixed;
@@ -133,25 +211,136 @@
             right: 20px;
             z-index: 1000;
         }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2;
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #666;
+        }
+        .popup-close:hover {
+            color: #333;
+        }
+        .item-info-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #4a90e2;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            font-size: 0.8em;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        .selection-box:hover .item-info-button {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .item-info-button:hover {
+            background-color: #f5f9ff;
+            transform: scale(1.2);
+        }
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 16px 2px rgba(0,0,0,0.25);
+            width: 220px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+            pointer-events: none;
+            display: none;
+        }
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            display: block;
+        }
+        .tooltip:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        .tooltip h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 0.9em;
+        }
+        .tooltip p {
+            margin: 0;
+            color: #666;
+            font-size: 0.8em;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-4">
         <h1 class="text-center mb-4">Malzeme-Teknik-Form Matrisi</h1>
         
-        <div class="file-upload mb-4">
+        <div class="start-selection">
+            <h3 class="mb-4">Başlangıç seçimini yapın:</h3>
+            <button class="btn" onclick="startWith('material')">Malzeme ile Başla</button>
+            <button class="btn" onclick="startWith('technique')">Teknik ile Başla</button>
+            <button class="btn" onclick="startWith('form')">Form ile Başla</button>
+        </div>
+
+        <div class="file-upload">
             <form id="uploadForm" th:action="@{/upload}" method="post" enctype="multipart/form-data">
                 <input type="file" name="file" id="file" accept=".xlsx,.xls" onchange="updateFileName(this)">
                 <label for="file">Excel Dosyası Seç</label>
                 <div class="file-name" id="fileName"></div>
             </form>
-        </div>
-        
-        <div class="start-selection">
-            <h3 class="mb-4">Başlangıç seçimini yapın:</h3>
-            <button class="btn btn-primary" onclick="startWith('material')">Malzeme ile Başla</button>
-            <button class="btn btn-primary" onclick="startWith('technique')">Teknik ile Başla</button>
-            <button class="btn btn-primary" onclick="startWith('form')">Form ile Başla</button>
         </div>
 
         <div class="matrix-container" style="display: none;">
@@ -160,48 +349,106 @@
             </button>
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <div id="materialsCategory" class="category">
-                        <h2>Malzemeler</h2>
-                        <div th:each="material : ${matrixData.materials}" class="selection-box active" 
-                             th:data-material="${material}"
-                             th:data-material-number="${matrixData.materialNumbers.get(material)}"
-                             onclick="selectMaterial(this)">
-                            <img th:if="${matrixData.materialNumbers.get(material)}" 
-                                 th:src="@{'/icons/Malzeme icon/M' + ${matrixData.materialNumbers.get(material)} + ' ' + ${material} + '.jpg'}"
-                                 class="material-icon" 
-                                 th:onerror="this.src=@{'/icons/Malzeme icon/M' + ${matrixData.materialNumbers.get(material)} + ' ' + ${material} + '.JPG'}"
-                                 onerror="this.onerror=null; this.style.display='none'">
-                            <span class="material-name" th:text="${material}"></span>
+                    <div class="category-container">
+                        <div id="materialsCategory" class="category" data-type="material">
+                            <div class="category-header">
+                                <h2>Malzemeler</h2>
+                                <button class="info-button" onclick="showInfo('material')">
+                                    ℹ️
+                                </button>
+                            </div>
+                            <div class="selection-boxes">
+                                <div th:each="material : ${matrixData.materials}" class="selection-box active" 
+                                     th:data-material="${material}"
+                                     th:data-material-number="${matrixData.materialNumbers.get(material)}"
+                                     th:title="${material}"
+                                     onclick="selectMaterial(this)">
+                                    <button class="item-info-button" 
+                                            th:data-type="'material'"
+                                            th:data-name="${material}"
+                                            th:data-number="${matrixData.materialNumbers.get(material)}">
+                                        ℹ️
+                                    </button>
+                                    <div class="tooltip">
+                                        <h4 th:text="${material}"></h4>
+                                        <p>Malzeme Kodu: M<span th:text="${matrixData.materialNumbers.get(material)}"></span></p>
+                                    </div>
+                                    <img th:if="${matrixData.materialNumbers.get(material)}" 
+                                         th:src="@{'/icons/Malzeme icon/M' + ${matrixData.materialNumbers.get(material)} + ' ' + ${material} + '.jpg'}"
+                                         class="material-icon" 
+                                         th:onerror="this.src=@{'/icons/Malzeme icon/M' + ${matrixData.materialNumbers.get(material)} + ' ' + ${material} + '.JPG'}"
+                                         onerror="this.onerror=null; this.style.display='none'">
+                                    <span class="material-name" th:text="${material}"></span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div id="techniquesCategory" class="category">
-                        <h2>Teknikler</h2>
-                        <div th:each="technique : ${matrixData.techniques}" class="selection-box inactive" 
-                             th:data-technique="${technique}"
-                             th:data-technique-number="${matrixData.techniqueNumbers.get(technique)}"
-                             onclick="selectTechnique(this)">
-                            <img th:if="${matrixData.techniqueNumbers.get(technique)}" 
-                                 th:src="@{'/icons/Teknikler icon/T' + ${matrixData.techniqueNumbers.get(technique)} + ' ' + ${technique} + '.jpg'}"
-                                 class="technique-icon" 
-                                 th:onerror="this.src=@{'/icons/Teknikler icon/T' + ${matrixData.techniqueNumbers.get(technique)} + ' ' + ${technique} + '.JPG'}"
-                                 onerror="this.onerror=null; this.style.display='none'">
-                            <span th:text="${technique}"></span>
+                        
+                        <div id="techniquesCategory" class="category" data-type="technique">
+                            <div class="category-header">
+                                <h2>Teknikler</h2>
+                                <button class="info-button" onclick="showInfo('technique')">
+                                    ℹ️
+                                </button>
+                            </div>
+                            <div class="selection-boxes">
+                                <div th:each="technique : ${matrixData.techniques}" class="selection-box inactive" 
+                                     th:data-technique="${technique}"
+                                     th:data-technique-number="${matrixData.techniqueNumbers.get(technique)}"
+                                     th:title="${technique}"
+                                     onclick="selectTechnique(this)">
+                                    <button class="item-info-button" 
+                                            th:data-type="'technique'"
+                                            th:data-name="${technique}"
+                                            th:data-number="${matrixData.techniqueNumbers.get(technique)}">
+                                        ℹ️
+                                    </button>
+                                    <div class="tooltip">
+                                        <h4 th:text="${technique}"></h4>
+                                        <p>Teknik Kodu: T<span th:text="${matrixData.techniqueNumbers.get(technique)}"></span></p>
+                                        <p>Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir.</p>
+                                    </div>
+                                    <img th:if="${matrixData.techniqueNumbers.get(technique)}" 
+                                         th:src="@{'/icons/Teknikler icon/T' + ${matrixData.techniqueNumbers.get(technique)} + ' ' + ${technique} + '.jpg'}"
+                                         class="technique-icon" 
+                                         th:onerror="this.src=@{'/icons/Teknikler icon/T' + ${matrixData.techniqueNumbers.get(technique)} + ' ' + ${technique} + '.JPG'}"
+                                         onerror="this.onerror=null; this.style.display='none'">
+                                    <span class="technique-name" th:text="${technique}"></span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div id="formsCategory" class="category">
-                        <h2>Formlar</h2>
-                        <div th:each="form : ${matrixData.forms}" class="selection-box inactive" 
-                             th:data-form="${form}"
-                             th:data-form-number="${matrixData.formNumbers.get(form)}"
-                             onclick="selectForm(this)">
-                            <img th:if="${matrixData.formNumbers.get(form)}" 
-                                 th:src="@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + '.JPG'}"
-                                 class="form-icon" 
-                                 th:onerror="this.src=@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + ' wire.png'}"
-                                 onerror="this.onerror=null; this.style.display='none'">
-                            <span th:text="${form}"></span>
+                        
+                        <div id="formsCategory" class="category" data-type="form">
+                            <div class="category-header">
+                                <h2>Formlar</h2>
+                                <button class="info-button" onclick="showInfo('form')">
+                                    ℹ️
+                                </button>
+                            </div>
+                            <div class="selection-boxes">
+                                <div th:each="form : ${matrixData.forms}" class="selection-box inactive" 
+                                     th:data-form="${form}"
+                                     th:data-form-number="${matrixData.formNumbers.get(form)}"
+                                     th:title="${form}"
+                                     onclick="selectForm(this)">
+                                    <button class="item-info-button" 
+                                            th:data-type="'form'"
+                                            th:data-name="${form}"
+                                            th:data-number="${matrixData.formNumbers.get(form)}">
+                                        ℹ️
+                                    </button>
+                                    <div class="tooltip">
+                                        <h4 th:text="${form}"></h4>
+                                        <p>Form Kodu: F<span th:text="${matrixData.formNumbers.get(form)}"></span></p>
+                                        <p>Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir.</p>
+                                    </div>
+                                    <img th:if="${matrixData.formNumbers.get(form)}" 
+                                         th:src="@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + '.JPG'}"
+                                         class="form-icon" 
+                                         th:onerror="this.src=@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + ' wire.png'}"
+                                         onerror="this.onerror=null; this.style.display='none'">
+                                    <span class="form-name" th:text="${form}"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,7 +456,14 @@
         </div>
     </div>
 
-    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closePopup()">&times;</button>
+            <div id="popupInfo"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <script th:inline="javascript">
         const relationships = /*[[${matrixData.relationships}]]*/ [];
         let selectedMaterial = null;
@@ -220,65 +474,68 @@
         function startWith(type) {
             startType = type;
             document.querySelector('.start-selection').style.display = 'none';
-            document.querySelector('.file-upload').style.display = 'none';
             document.querySelector('.matrix-container').style.display = 'block';
+            document.querySelector('.file-upload').style.display = 'none';
             
             // Reset all selections
             resetAllSelections();
             
-            // Reorder categories based on starting type
-            const materialsCategory = document.getElementById('materialsCategory');
-            const techniquesCategory = document.getElementById('techniquesCategory');
-            const formsCategory = document.getElementById('formsCategory');
-            const container = materialsCategory.parentNode;
+            // Reorder categories based on start type
+            const categories = document.querySelectorAll('.category');
+            categories.forEach(category => {
+                const categoryType = category.getAttribute('data-type');
+                let order;
+                
+                switch(type) {
+                    case 'material':
+                        // Malzeme -> Teknik -> Form
+                        if (categoryType === 'material') order = 1;
+                        else if (categoryType === 'technique') order = 2;
+                        else if (categoryType === 'form') order = 3;
+                        break;
+                    case 'technique':
+                        // Teknik -> Form -> Malzeme
+                        if (categoryType === 'technique') order = 1;
+                        else if (categoryType === 'form') order = 2;
+                        else if (categoryType === 'material') order = 3;
+                        break;
+                    case 'form':
+                        // Form -> Teknik -> Malzeme
+                        if (categoryType === 'form') order = 1;
+                        else if (categoryType === 'technique') order = 2;
+                        else if (categoryType === 'material') order = 3;
+                        break;
+                }
+                
+                category.setAttribute('data-order', order);
+            });
             
-            // Remove all categories first
-            container.removeChild(materialsCategory);
-            container.removeChild(techniquesCategory);
-            container.removeChild(formsCategory);
-            
-            switch(type) {
-                case 'material':
-                    // Order: Material -> Technique -> Form
-                    container.appendChild(materialsCategory);
-                    container.appendChild(techniquesCategory);
-                    container.appendChild(formsCategory);
-                    document.querySelectorAll('[data-material]').forEach(el => {
-                        el.classList.remove('inactive');
-                        el.classList.add('active');
-                    });
-                    break;
-                case 'technique':
-                    // Order: Technique -> Material -> Form
-                    container.appendChild(techniquesCategory);
-                    container.appendChild(materialsCategory);
-                    container.appendChild(formsCategory);
-                    document.querySelectorAll('[data-technique]').forEach(el => {
-                        el.classList.remove('inactive');
-                        el.classList.add('active');
-                    });
-                    break;
-                case 'form':
-                    // Order: Form -> Technique -> Material
-                    container.appendChild(formsCategory);
-                    container.appendChild(techniquesCategory);
-                    container.appendChild(materialsCategory);
-                    document.querySelectorAll('[data-form]').forEach(el => {
-                        el.classList.remove('inactive');
-                        el.classList.add('active');
-                    });
-                    break;
+            // Activate all options in the starting category
+            const startCategory = document.querySelector(`.category[data-type="${type}"]`);
+            if (startCategory) {
+                const options = startCategory.querySelectorAll('.selection-box');
+                options.forEach(option => {
+                    option.classList.remove('inactive');
+                    option.classList.add('active');
+                });
             }
+            
+            // Scroll to the top of the container
+            document.querySelector('.matrix-container').scrollTop = 0;
         }
 
         function resetAllSelections() {
-            document.querySelectorAll('.selection-box').forEach(el => {
-                el.classList.remove('selected', 'active');
-                el.classList.add('inactive');
-            });
+            // Reset all selections
             selectedMaterial = null;
             selectedTechnique = null;
             selectedForm = null;
+            
+            // Reset all option states
+            const allOptions = document.querySelectorAll('.selection-box');
+            allOptions.forEach(option => {
+                option.classList.remove('selected', 'inactive');
+                option.classList.add('active');
+            });
         }
 
         function updateFileName(input) {
@@ -291,188 +548,155 @@
 
         function selectMaterial(element) {
             const material = element.getAttribute('data-material');
-            const techniqueBoxes = document.querySelectorAll('[data-technique]');
-            const formBoxes = document.querySelectorAll('[data-form]');
             
-            // Update material selection
-            document.querySelectorAll('[data-material]').forEach(box => {
-                box.classList.remove('active');
-            });
-            element.classList.add('active');
-            
-            // Reset and update technique boxes
-            techniqueBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
-            // Reset and update form boxes
-            formBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
-            // Enable related items based on selection type
-            if (startType === 'material') {
-                // From material: show related techniques and forms
-                techniqueBoxes.forEach(box => {
-                    const technique = box.getAttribute('data-technique');
-                    if (hasAnyRelationship(material, technique, null)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
+            if (selectedMaterial === material) {
+                // Deselect if already selected
+                selectedMaterial = null;
+                element.classList.remove('selected');
+                
+                // Reset all options to active state
+                const allOptions = document.querySelectorAll('.selection-box');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('inactive');
+                    opt.classList.add('active');
                 });
-                formBoxes.forEach(box => {
-                    const form = box.getAttribute('data-form');
-                    if (hasAnyRelationship(material, null, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
-            } else if (startType === 'technique' && selectedTechnique) {
-                // From technique: show only related forms
-                formBoxes.forEach(box => {
-                    const form = box.getAttribute('data-form');
-                    if (hasAnyRelationship(material, selectedTechnique, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
-            } else if (startType === 'form' && selectedForm) {
-                // From form: show only related techniques
-                techniqueBoxes.forEach(box => {
-                    const technique = box.getAttribute('data-technique');
-                    if (hasAnyRelationship(material, technique, selectedForm)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
+            } else {
+                // Select new material
+                selectedMaterial = material;
+                document.querySelectorAll('.selection-box[data-material]').forEach(opt => opt.classList.remove('selected'));
+                element.classList.add('selected');
+                
+                // Update technique and form states based on relationships
+                updateTechniqueStates();
+                updateFormStates();
             }
-            
-            selectedMaterial = material;
         }
 
         function selectTechnique(element) {
-            if (element.classList.contains('inactive')) return;
-            
             const technique = element.getAttribute('data-technique');
-            const materialBoxes = document.querySelectorAll('[data-material]');
-            const formBoxes = document.querySelectorAll('[data-form]');
             
-            // Update technique selection
-            document.querySelectorAll('[data-technique]').forEach(box => {
-                box.classList.remove('active');
-            });
-            element.classList.add('active');
-            
-            // Reset and update material boxes
-            materialBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
-            // Reset and update form boxes
-            formBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
-            // Enable related items based on selection type
-            if (startType === 'technique') {
-                // From technique: show related materials and forms
-                materialBoxes.forEach(box => {
-                    const material = box.getAttribute('data-material');
-                    if (hasAnyRelationship(material, technique, null)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
+            if (selectedTechnique === technique) {
+                // Deselect if already selected
+                selectedTechnique = null;
+                element.classList.remove('selected');
+                
+                // Reset all options to active state
+                const allOptions = document.querySelectorAll('.selection-box');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('inactive');
+                    opt.classList.add('active');
                 });
-                formBoxes.forEach(box => {
-                    const form = box.getAttribute('data-form');
-                    if (hasAnyRelationship(null, technique, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
-            } else if (startType === 'material' && selectedMaterial) {
-                // From material: show only related forms
-                formBoxes.forEach(box => {
-                    const form = box.getAttribute('data-form');
-                    if (hasAnyRelationship(selectedMaterial, technique, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
-            } else if (startType === 'form' && selectedForm) {
-                // From form: show only related materials
-                materialBoxes.forEach(box => {
-                    const material = box.getAttribute('data-material');
-                    if (hasAnyRelationship(material, technique, selectedForm)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
+            } else {
+                // Select new technique
+                selectedTechnique = technique;
+                document.querySelectorAll('.selection-box[data-technique]').forEach(opt => opt.classList.remove('selected'));
+                element.classList.add('selected');
+                
+                // Update material and form states based on relationships
+                updateMaterialStates();
+                updateFormStates();
             }
-            
-            selectedTechnique = technique;
         }
 
         function selectForm(element) {
-            if (element.classList.contains('inactive')) return;
-            
             const form = element.getAttribute('data-form');
-            const materialBoxes = document.querySelectorAll('[data-material]');
-            const techniqueBoxes = document.querySelectorAll('[data-technique]');
             
-            // Update form selection
-            document.querySelectorAll('[data-form]').forEach(box => {
-                box.classList.remove('active');
-            });
-            element.classList.add('active');
-            
-            // Reset and update material boxes
-            materialBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
-            // Reset and update technique boxes
-            techniqueBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
-            // Enable related items based on selection type
-            if (startType === 'form') {
-                // From form: show related techniques
-                techniqueBoxes.forEach(box => {
-                    const technique = box.getAttribute('data-technique');
-                    if (hasAnyRelationship(null, technique, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
+            if (selectedForm === form) {
+                // Deselect if already selected
+                selectedForm = null;
+                element.classList.remove('selected');
+                
+                // Reset all options to active state
+                const allOptions = document.querySelectorAll('.selection-box');
+                allOptions.forEach(opt => {
+                    opt.classList.remove('inactive');
+                    opt.classList.add('active');
                 });
-            } else if (startType === 'material' && selectedMaterial) {
-                // From material: show only related techniques
-                techniqueBoxes.forEach(box => {
-                    const technique = box.getAttribute('data-technique');
-                    if (hasAnyRelationship(selectedMaterial, technique, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
-            } else if (startType === 'technique' && selectedTechnique) {
-                // From technique: show only related materials
-                materialBoxes.forEach(box => {
-                    const material = box.getAttribute('data-material');
-                    if (hasAnyRelationship(material, selectedTechnique, form)) {
-                        box.classList.remove('inactive');
-                        box.classList.add('active');
-                    }
-                });
+            } else {
+                // Select new form
+                selectedForm = form;
+                document.querySelectorAll('.selection-box[data-form]').forEach(opt => opt.classList.remove('selected'));
+                element.classList.add('selected');
+                
+                // Update material and technique states based on relationships
+                updateMaterialStates();
+                updateTechniqueStates();
             }
-            
-            selectedForm = form;
+        }
+
+        function updateMaterialStates() {
+            const materialBoxes = document.querySelectorAll('.selection-box[data-material]');
+            materialBoxes.forEach(box => {
+                const material = box.getAttribute('data-material');
+                if (startType === 'material') {
+                    // If starting with material, all materials are active
+                    box.classList.remove('inactive');
+                    box.classList.add('active');
+                } else {
+                    // Check relationships with current selections
+                    const isRelated = hasAnyRelationship(material, selectedTechnique, selectedForm);
+                    if (isRelated) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    } else {
+                        box.classList.remove('active');
+                        box.classList.add('inactive');
+                    }
+                }
+            });
+        }
+
+        function updateTechniqueStates() {
+            const techniqueBoxes = document.querySelectorAll('.selection-box[data-technique]');
+            techniqueBoxes.forEach(box => {
+                const technique = box.getAttribute('data-technique');
+                if (startType === 'technique') {
+                    // If starting with technique, all techniques are active
+                    box.classList.remove('inactive');
+                    box.classList.add('active');
+                } else {
+                    // Check relationships with current selections
+                    const isRelated = hasAnyRelationship(selectedMaterial, technique, selectedForm);
+                    if (isRelated) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    } else {
+                        box.classList.remove('active');
+                        box.classList.add('inactive');
+                    }
+                }
+            });
+        }
+
+        function updateFormStates() {
+            const formBoxes = document.querySelectorAll('.selection-box[data-form]');
+            formBoxes.forEach(box => {
+                const form = box.getAttribute('data-form');
+                if (startType === 'form') {
+                    // If starting with form, all forms are active
+                    box.classList.remove('inactive');
+                    box.classList.add('active');
+                } else {
+                    // Check relationships with current selections
+                    const isRelated = hasAnyRelationship(selectedMaterial, selectedTechnique, form);
+                    if (isRelated) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    } else {
+                        box.classList.remove('active');
+                        box.classList.add('inactive');
+                    }
+                }
+            });
+        }
+
+        function getNextCategory(type) {
+            switch(type) {
+                case 'material': return 'technique';
+                case 'technique': return 'material';
+                case 'form': return 'technique';
+                default: return null;
+            }
         }
 
         function hasAnyRelationship(material, technique, form) {
@@ -484,12 +708,170 @@
         }
 
         function resetToStart() {
-            document.querySelector('.start-selection').style.display = 'block';
-            document.querySelector('.file-upload').style.display = 'block';
-            document.querySelector('.matrix-container').style.display = 'none';
-            resetAllSelections();
             startType = null;
+            document.querySelector('.start-selection').style.display = 'block';
+            document.querySelector('.matrix-container').style.display = 'none';
+            document.querySelector('.file-upload').style.display = 'block';
+            
+            // Reset category orders
+            const categories = document.querySelectorAll('.category');
+            categories.forEach(category => {
+                category.removeAttribute('data-order');
+            });
+            
+            resetAllSelections();
+            
+            // Scroll to top of the page
+            window.scrollTo(0, 0);
         }
+
+        function showInfo(type) {
+            const popupOverlay = document.getElementById('popupOverlay');
+            const popupInfo = document.getElementById('popupInfo');
+            let content = '';
+            
+            switch(type) {
+                case 'material':
+                    content = `
+                        <h3>Malzemeler Hakkında</h3>
+                        <p>Malzemeler, üretimde kullanılan temel hammaddeleri temsil eder. Her malzeme, belirli teknikler ve formlarla uyumlu çalışabilir.</p>
+                        <ul>
+                            <li>Malzeme seçimi, üretim sürecinin ilk adımıdır</li>
+                            <li>Her malzemenin kendine özgü özellikleri vardır</li>
+                            <li>Malzeme seçimi, teknik ve form seçimini etkiler</li>
+                        </ul>
+                    `;
+                    break;
+                case 'technique':
+                    content = `
+                        <h3>Teknikler Hakkında</h3>
+                        <p>Teknikler, malzemelerin işlenme yöntemlerini gösterir. Her teknik, belirli malzemeler ve formlarla uyumlu çalışabilir.</p>
+                        <ul>
+                            <li>Teknik seçimi, üretim yöntemini belirler</li>
+                            <li>Her tekniğin kendine özgü avantajları vardır</li>
+                            <li>Teknik seçimi, malzeme ve form seçimini etkiler</li>
+                        </ul>
+                    `;
+                    break;
+                case 'form':
+                    content = `
+                        <h3>Formlar Hakkında</h3>
+                        <p>Formlar, ürünün son şeklini temsil eder. Her form, belirli malzemeler ve tekniklerle uyumlu çalışabilir.</p>
+                        <ul>
+                            <li>Form seçimi, ürünün görsel ve fonksiyonel özelliklerini belirler</li>
+                            <li>Her formun kendine özgü tasarım gereksinimleri vardır</li>
+                            <li>Form seçimi, malzeme ve teknik seçimini etkiler</li>
+                        </ul>
+                    `;
+                    break;
+            }
+            
+            popupInfo.innerHTML = content;
+            popupOverlay.style.display = 'flex';
+        }
+
+        function closePopup(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            document.getElementById('popupOverlay').style.display = 'none';
+        }
+
+        // Popup dışına tıklandığında kapatma
+        document.addEventListener('click', function(event) {
+            const popupOverlay = document.getElementById('popupOverlay');
+            if (event.target === popupOverlay) {
+                closePopup();
+            }
+        });
+
+        function showItemInfo(type, name, number) {
+            const popupOverlay = document.getElementById('popupOverlay');
+            const popupInfo = document.getElementById('popupInfo');
+            let content = '';
+            
+            switch(type) {
+                case 'material':
+                    content = `
+                        <h3>${name}</h3>
+                        <p>Malzeme Kodu: M${number}</p>
+                        <div class="info-details">
+                            <h4>Özellikler:</h4>
+                            <ul>
+                                <li>Bu malzeme, belirli teknikler ve formlarla uyumlu çalışabilir</li>
+                                <li>Malzeme seçimi, üretim sürecinin temelini oluşturur</li>
+                                <li>Her malzemenin kendine özgü işleme gereksinimleri vardır</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                case 'technique':
+                    content = `
+                        <h3>${name}</h3>
+                        <p>Teknik Kodu: T${number}</p>
+                        <div class="info-details">
+                            <h4>Özellikler:</h4>
+                            <ul>
+                                <li>Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir</li>
+                                <li>Teknik seçimi, üretim yöntemini belirler</li>
+                                <li>Her tekniğin kendine özgü avantajları ve sınırlamaları vardır</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                case 'form':
+                    content = `
+                        <h3>${name}</h3>
+                        <p>Form Kodu: F${number}</p>
+                        <div class="info-details">
+                            <h4>Özellikler:</h4>
+                            <ul>
+                                <li>Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir</li>
+                                <li>Form seçimi, ürünün görsel ve fonksiyonel özelliklerini belirler</li>
+                                <li>Her formun kendine özgü tasarım gereksinimleri vardır</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            popupInfo.innerHTML = content;
+            popupOverlay.style.display = 'flex';
+        }
+
+        // Info butonları için event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.item-info-button').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const type = this.getAttribute('data-type');
+                    const name = this.getAttribute('data-name');
+                    const number = this.getAttribute('data-number');
+                    
+                    // Önce tüm tooltipleri kapat
+                    document.querySelectorAll('.tooltip').forEach(tooltip => {
+                        tooltip.classList.remove('show');
+                    });
+                    
+                    // Tıklanan butonun tooltip'ini göster
+                    const tooltip = this.nextElementSibling;
+                    if (tooltip && tooltip.classList.contains('tooltip')) {
+                        tooltip.classList.add('show');
+                        console.log('Showing tooltip for:', name);
+                        console.log('Tooltip content:', tooltip.innerHTML);
+                    }
+                });
+            });
+
+            // Tooltip dışına tıklandığında kapat
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.tooltip') && !event.target.closest('.item-info-button')) {
+                    document.querySelectorAll('.tooltip').forEach(tooltip => {
+                        tooltip.classList.remove('show');
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html> 
