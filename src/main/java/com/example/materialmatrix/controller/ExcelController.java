@@ -1,5 +1,7 @@
 package com.example.materialmatrix.controller;
 
+import com.example.materialmatrix.model.MatrixData;
+import com.example.materialmatrix.model.Relationship;
 import com.example.materialmatrix.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ExcelController {
@@ -22,11 +26,24 @@ public class ExcelController {
     @GetMapping("/")
     public String index(Model model) {
         try {
-            model.addAllAttributes(excelService.readExcelData());
+            Map<String, Object> data = excelService.readExcelData();
+            
+            MatrixData matrixData = new MatrixData(
+                (List<String>) data.get("materials"),
+                (List<String>) data.get("techniques"),
+                (List<String>) data.get("forms"),
+                (List<Relationship>) data.get("relationships"),
+                (Map<String, String>) data.get("materialNumbers"),
+                (Map<String, String>) data.get("techniqueNumbers"),
+                (Map<String, String>) data.get("formNumbers")
+            );
+            
+            model.addAttribute("matrixData", matrixData);
+            return "index";
         } catch (IOException e) {
             e.printStackTrace();
+            return "error";
         }
-        return "index";
     }
 
     @PostMapping("/upload")
