@@ -139,6 +139,14 @@
     <div class="container mt-4">
         <h1 class="text-center mb-4">Malzeme-Teknik-Form Matrisi</h1>
         
+        <div class="file-upload mb-4">
+            <form id="uploadForm" th:action="@{/upload}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" id="file" accept=".xlsx,.xls" onchange="updateFileName(this)">
+                <label for="file">Excel Dosyası Seç</label>
+                <div class="file-name" id="fileName"></div>
+            </form>
+        </div>
+        
         <div class="start-selection">
             <h3 class="mb-4">Başlangıç seçimini yapın:</h3>
             <button class="btn btn-primary" onclick="startWith('material')">Malzeme ile Başla</button>
@@ -146,21 +154,13 @@
             <button class="btn btn-primary" onclick="startWith('form')">Form ile Başla</button>
         </div>
 
-        <div class="matrix-container">
+        <div class="matrix-container" style="display: none;">
             <button class="btn btn-secondary reset-button" onclick="resetToStart()">
                 <i class="fas fa-home"></i> Ana Sayfaya Dön
             </button>
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <div class="file-upload">
-                        <form id="uploadForm" th:action="@{/upload}" method="post" enctype="multipart/form-data">
-                            <input type="file" name="file" id="file" accept=".xlsx,.xls" onchange="updateFileName(this)">
-                            <label for="file">Excel Dosyası Seç</label>
-                            <div class="file-name" id="fileName"></div>
-                        </form>
-                    </div>
-
-                    <div class="category">
+                    <div id="materialsCategory" class="category">
                         <h2>Malzemeler</h2>
                         <div th:each="material : ${matrixData.materials}" class="selection-box active" 
                              th:data-material="${material}"
@@ -175,7 +175,7 @@
                         </div>
                     </div>
                     
-                    <div class="category">
+                    <div id="techniquesCategory" class="category">
                         <h2>Teknikler</h2>
                         <div th:each="technique : ${matrixData.techniques}" class="selection-box inactive" 
                              th:data-technique="${technique}"
@@ -190,16 +190,16 @@
                         </div>
                     </div>
                     
-                    <div class="category">
+                    <div id="formsCategory" class="category">
                         <h2>Formlar</h2>
                         <div th:each="form : ${matrixData.forms}" class="selection-box inactive" 
                              th:data-form="${form}"
                              th:data-form-number="${matrixData.formNumbers.get(form)}"
                              onclick="selectForm(this)">
                             <img th:if="${matrixData.formNumbers.get(form)}" 
-                                 th:src="@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + '.jpg'}"
+                                 th:src="@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + '.JPG'}"
                                  class="form-icon" 
-                                 th:onerror="this.src=@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + '.JPG'}"
+                                 th:onerror="this.src=@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + ' wire.png'}"
                                  onerror="this.onerror=null; this.style.display='none'">
                             <span th:text="${form}"></span>
                         </div>
@@ -220,26 +220,49 @@
         function startWith(type) {
             startType = type;
             document.querySelector('.start-selection').style.display = 'none';
+            document.querySelector('.file-upload').style.display = 'none';
             document.querySelector('.matrix-container').style.display = 'block';
             
             // Reset all selections
             resetAllSelections();
             
-            // Activate the starting category
+            // Reorder categories based on starting type
+            const materialsCategory = document.getElementById('materialsCategory');
+            const techniquesCategory = document.getElementById('techniquesCategory');
+            const formsCategory = document.getElementById('formsCategory');
+            const container = materialsCategory.parentNode;
+            
+            // Remove all categories first
+            container.removeChild(materialsCategory);
+            container.removeChild(techniquesCategory);
+            container.removeChild(formsCategory);
+            
             switch(type) {
                 case 'material':
+                    // Order: Material -> Technique -> Form
+                    container.appendChild(materialsCategory);
+                    container.appendChild(techniquesCategory);
+                    container.appendChild(formsCategory);
                     document.querySelectorAll('[data-material]').forEach(el => {
                         el.classList.remove('inactive');
                         el.classList.add('active');
                     });
                     break;
                 case 'technique':
+                    // Order: Technique -> Material -> Form
+                    container.appendChild(techniquesCategory);
+                    container.appendChild(materialsCategory);
+                    container.appendChild(formsCategory);
                     document.querySelectorAll('[data-technique]').forEach(el => {
                         el.classList.remove('inactive');
                         el.classList.add('active');
                     });
                     break;
                 case 'form':
+                    // Order: Form -> Technique -> Material
+                    container.appendChild(formsCategory);
+                    container.appendChild(techniquesCategory);
+                    container.appendChild(materialsCategory);
                     document.querySelectorAll('[data-form]').forEach(el => {
                         el.classList.remove('inactive');
                         el.classList.add('active');
@@ -271,46 +294,70 @@
             const techniqueBoxes = document.querySelectorAll('[data-technique]');
             const formBoxes = document.querySelectorAll('[data-form]');
             
-            // Reset all boxes
-            techniqueBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            formBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
-            
             // Update material selection
             document.querySelectorAll('[data-material]').forEach(box => {
                 box.classList.remove('active');
             });
             element.classList.add('active');
             
-            // Enable related techniques
+            // Reset and update technique boxes
             techniqueBoxes.forEach(box => {
-                const technique = box.getAttribute('data-technique');
-                if (hasRelationship(material, technique)) {
-                    box.classList.remove('inactive');
-                }
+                box.classList.remove('active');
+                box.classList.add('inactive');
             });
             
-            selectedTechnique = null;
-            updateAvailableForms();
+            // Reset and update form boxes
+            formBoxes.forEach(box => {
+                box.classList.remove('active');
+                box.classList.add('inactive');
+            });
+            
+            // Enable related items based on selection type
+            if (startType === 'material') {
+                // From material: show related techniques and forms
+                techniqueBoxes.forEach(box => {
+                    const technique = box.getAttribute('data-technique');
+                    if (hasAnyRelationship(material, technique, null)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+                formBoxes.forEach(box => {
+                    const form = box.getAttribute('data-form');
+                    if (hasAnyRelationship(material, null, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            } else if (startType === 'technique' && selectedTechnique) {
+                // From technique: show only related forms
+                formBoxes.forEach(box => {
+                    const form = box.getAttribute('data-form');
+                    if (hasAnyRelationship(material, selectedTechnique, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            } else if (startType === 'form' && selectedForm) {
+                // From form: show only related techniques
+                techniqueBoxes.forEach(box => {
+                    const technique = box.getAttribute('data-technique');
+                    if (hasAnyRelationship(material, technique, selectedForm)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            }
+            
+            selectedMaterial = material;
         }
 
         function selectTechnique(element) {
             if (element.classList.contains('inactive')) return;
             
             const technique = element.getAttribute('data-technique');
-            const material = document.querySelector('[data-material].active').getAttribute('data-material');
+            const materialBoxes = document.querySelectorAll('[data-material]');
             const formBoxes = document.querySelectorAll('[data-form]');
-            
-            // Reset form boxes
-            formBoxes.forEach(box => {
-                box.classList.remove('active');
-                box.classList.add('inactive');
-            });
             
             // Update technique selection
             document.querySelectorAll('[data-technique]').forEach(box => {
@@ -318,66 +365,127 @@
             });
             element.classList.add('active');
             
-            // Enable related forms
-            formBoxes.forEach(box => {
-                const form = box.getAttribute('data-form');
-                if (hasRelationship(material, technique, form)) {
-                    box.classList.remove('inactive');
-                }
+            // Reset and update material boxes
+            materialBoxes.forEach(box => {
+                box.classList.remove('active');
+                box.classList.add('inactive');
             });
             
-            selectedForm = null;
+            // Reset and update form boxes
+            formBoxes.forEach(box => {
+                box.classList.remove('active');
+                box.classList.add('inactive');
+            });
+            
+            // Enable related items based on selection type
+            if (startType === 'technique') {
+                // From technique: show related materials and forms
+                materialBoxes.forEach(box => {
+                    const material = box.getAttribute('data-material');
+                    if (hasAnyRelationship(material, technique, null)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+                formBoxes.forEach(box => {
+                    const form = box.getAttribute('data-form');
+                    if (hasAnyRelationship(null, technique, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            } else if (startType === 'material' && selectedMaterial) {
+                // From material: show only related forms
+                formBoxes.forEach(box => {
+                    const form = box.getAttribute('data-form');
+                    if (hasAnyRelationship(selectedMaterial, technique, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            } else if (startType === 'form' && selectedForm) {
+                // From form: show only related materials
+                materialBoxes.forEach(box => {
+                    const material = box.getAttribute('data-material');
+                    if (hasAnyRelationship(material, technique, selectedForm)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            }
+            
+            selectedTechnique = technique;
         }
 
         function selectForm(element) {
             if (element.classList.contains('inactive')) return;
             
             const form = element.getAttribute('data-form');
-            const material = document.querySelector('[data-material].active').getAttribute('data-material');
-            const technique = document.querySelector('[data-technique].active').getAttribute('data-technique');
+            const materialBoxes = document.querySelectorAll('[data-material]');
+            const techniqueBoxes = document.querySelectorAll('[data-technique]');
             
             // Update form selection
             document.querySelectorAll('[data-form]').forEach(box => {
                 box.classList.remove('active');
             });
             element.classList.add('active');
-        }
-
-        function updateAvailableForms() {
-            const availableForms = new Set();
             
-            relationships.forEach(rel => {
-                if (rel.material === selectedMaterial && 
-                    (!selectedTechnique || rel.technique === selectedTechnique)) {
-                    availableForms.add(rel.form);
-                }
+            // Reset and update material boxes
+            materialBoxes.forEach(box => {
+                box.classList.remove('active');
+                box.classList.add('inactive');
             });
             
-            document.querySelectorAll('[data-form]').forEach(box => {
-                const form = box.getAttribute('data-form');
-                if (availableForms.has(form)) {
-                    box.classList.remove('inactive');
-                    box.classList.add('active');
-                } else {
-                    box.classList.remove('active');
-                    box.classList.add('inactive');
-                }
-                box.classList.remove('selected');
+            // Reset and update technique boxes
+            techniqueBoxes.forEach(box => {
+                box.classList.remove('active');
+                box.classList.add('inactive');
             });
             
-            selectedForm = null;
+            // Enable related items based on selection type
+            if (startType === 'form') {
+                // From form: show related techniques
+                techniqueBoxes.forEach(box => {
+                    const technique = box.getAttribute('data-technique');
+                    if (hasAnyRelationship(null, technique, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            } else if (startType === 'material' && selectedMaterial) {
+                // From material: show only related techniques
+                techniqueBoxes.forEach(box => {
+                    const technique = box.getAttribute('data-technique');
+                    if (hasAnyRelationship(selectedMaterial, technique, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            } else if (startType === 'technique' && selectedTechnique) {
+                // From technique: show only related materials
+                materialBoxes.forEach(box => {
+                    const material = box.getAttribute('data-material');
+                    if (hasAnyRelationship(material, selectedTechnique, form)) {
+                        box.classList.remove('inactive');
+                        box.classList.add('active');
+                    }
+                });
+            }
+            
+            selectedForm = form;
         }
 
-        function hasRelationship(material, technique, form) {
+        function hasAnyRelationship(material, technique, form) {
             return relationships.some(rel => 
-                rel.material === material && 
-                rel.technique === technique && 
+                (!material || rel.material === material) && 
+                (!technique || rel.technique === technique) && 
                 (!form || rel.form === form)
             );
         }
 
         function resetToStart() {
             document.querySelector('.start-selection').style.display = 'block';
+            document.querySelector('.file-upload').style.display = 'block';
             document.querySelector('.matrix-container').style.display = 'none';
             resetAllSelections();
             startType = null;
