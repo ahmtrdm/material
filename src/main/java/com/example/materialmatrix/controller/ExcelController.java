@@ -2,6 +2,7 @@ package com.example.materialmatrix.controller;
 
 import com.example.materialmatrix.model.MatrixData;
 import com.example.materialmatrix.model.Relationship;
+import com.example.materialmatrix.model.WebObject;
 import com.example.materialmatrix.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ExcelController {
@@ -26,12 +28,16 @@ public class ExcelController {
     @GetMapping("/")
     public String index(Model model) {
         try {
-            Map<String, Object> data = excelService.readExcelData();
+            Map<String, Object> data = excelService.readExcelFiles();
+            
+            List<WebObject> materials = ((Map<String, WebObject>) data.get("materials")).values().stream().collect(Collectors.toList());
+            List<WebObject> techniques = ((Map<String, WebObject>) data.get("techniques")).values().stream().collect(Collectors.toList());
+            List<WebObject> forms = ((Map<String, WebObject>) data.get("forms")).values().stream().collect(Collectors.toList());
             
             MatrixData matrixData = new MatrixData(
-                (List<String>) data.get("materials"),
-                (List<String>) data.get("techniques"),
-                (List<String>) data.get("forms"),
+                materials.stream().map(WebObject::getName).collect(Collectors.toList()),
+                techniques.stream().map(WebObject::getName).collect(Collectors.toList()),
+                forms.stream().map(WebObject::getName).collect(Collectors.toList()),
                 (List<Relationship>) data.get("relationships"),
                 (Map<String, String>) data.get("materialNumbers"),
                 (Map<String, String>) data.get("techniqueNumbers"),
@@ -39,8 +45,11 @@ public class ExcelController {
             );
             
             model.addAttribute("matrixData", matrixData);
+            model.addAttribute("materials", materials);
+            model.addAttribute("techniques", techniques);
+            model.addAttribute("forms", forms);
             return "index";
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return "error";
         }

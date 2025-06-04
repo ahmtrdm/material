@@ -358,27 +358,33 @@
                                 </button>
                             </div>
                             <div class="selection-boxes">
-                                <div th:each="material : ${matrixData.materials}" class="selection-box active" 
-                                     th:data-material="${material}"
-                                     th:data-material-number="${matrixData.materialNumbers.get(material)}"
-                                     th:title="${material}"
+                                <div th:each="material : ${materials}" class="selection-box active" 
+                                     th:data-material="${material.name}"
+                                     th:data-material-number="${material.id}"
+                                     th:title="${material.name}"
                                      onclick="selectMaterial(this)">
                                     <button class="item-info-button" 
                                             th:data-type="'material'"
-                                            th:data-name="${material}"
-                                            th:data-number="${matrixData.materialNumbers.get(material)}">
+                                            th:data-name="${material.name}"
+                                            th:data-number="${material.id}"
+                                            th:data-description="${material.description}">
                                         ℹ️
                                     </button>
                                     <div class="tooltip">
-                                        <h4 th:text="${material}"></h4>
-                                        <p>Malzeme Kodu: M<span th:text="${matrixData.materialNumbers.get(material)}"></span></p>
+                                        <h4 th:text="${material.name}"></h4>
+                                        <p>Malzeme Kodu: <span th:text="${material.id}"></span></p>
+                                        <p th:text="${material.description}"></p>
+                                        <p th:if="${!material.features.empty}">
+                                            <strong>Özellikler:</strong><br/>
+                                            <span th:each="feature : ${material.features}" th:text="${feature + ', '}"></span>
+                                        </p>
                                     </div>
-                                    <img th:if="${matrixData.materialNumbers.get(material)}" 
-                                         th:src="@{'/icons/Malzeme icon/M' + ${matrixData.materialNumbers.get(material)} + ' ' + ${material} + '.jpg'}"
+                                    <img th:if="${material.id}" 
+                                         th:src="@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.jpg'}"
                                          class="material-icon" 
-                                         th:onerror="this.src=@{'/icons/Malzeme icon/M' + ${matrixData.materialNumbers.get(material)} + ' ' + ${material} + '.JPG'}"
+                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.JPG'}"
                                          onerror="this.onerror=null; this.style.display='none'">
-                                    <span class="material-name" th:text="${material}"></span>
+                                    <span class="material-name" th:text="${material.name}"></span>
                                 </div>
                             </div>
                         </div>
@@ -391,28 +397,33 @@
                                 </button>
                             </div>
                             <div class="selection-boxes">
-                                <div th:each="technique : ${matrixData.techniques}" class="selection-box inactive" 
-                                     th:data-technique="${technique}"
-                                     th:data-technique-number="${matrixData.techniqueNumbers.get(technique)}"
-                                     th:title="${technique}"
+                                <div th:each="technique : ${techniques}" class="selection-box inactive" 
+                                     th:data-technique="${technique.name}"
+                                     th:data-technique-number="${technique.id}"
+                                     th:title="${technique.name}"
                                      onclick="selectTechnique(this)">
                                     <button class="item-info-button" 
                                             th:data-type="'technique'"
-                                            th:data-name="${technique}"
-                                            th:data-number="${matrixData.techniqueNumbers.get(technique)}">
+                                            th:data-name="${technique.name}"
+                                            th:data-number="${technique.id}"
+                                            th:data-description="${technique.description}">
                                         ℹ️
                                     </button>
                                     <div class="tooltip">
-                                        <h4 th:text="${technique}"></h4>
-                                        <p>Teknik Kodu: T<span th:text="${matrixData.techniqueNumbers.get(technique)}"></span></p>
-                                        <p>Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir.</p>
+                                        <h4 th:text="${technique.name}"></h4>
+                                        <p>Teknik Kodu: <span th:text="${technique.id}"></span></p>
+                                        <p th:text="${technique.description}"></p>
+                                        <p th:if="${!technique.features.empty}">
+                                            <strong>Özellikler:</strong><br/>
+                                            <span th:each="feature : ${technique.features}" th:text="${feature + ', '}"></span>
+                                        </p>
                                     </div>
-                                    <img th:if="${matrixData.techniqueNumbers.get(technique)}" 
-                                         th:src="@{'/icons/Teknikler icon/T' + ${matrixData.techniqueNumbers.get(technique)} + ' ' + ${technique} + '.jpg'}"
+                                    <img th:if="${technique.id}" 
+                                         th:src="@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.jpg'}"
                                          class="technique-icon" 
-                                         th:onerror="this.src=@{'/icons/Teknikler icon/T' + ${matrixData.techniqueNumbers.get(technique)} + ' ' + ${technique} + '.JPG'}"
+                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.JPG'}"
                                          onerror="this.onerror=null; this.style.display='none'">
-                                    <span class="technique-name" th:text="${technique}"></span>
+                                    <span class="technique-name" th:text="${technique.name}"></span>
                                 </div>
                             </div>
                         </div>
@@ -425,28 +436,33 @@
                                 </button>
                             </div>
                             <div class="selection-boxes">
-                                <div th:each="form : ${matrixData.forms}" class="selection-box inactive" 
-                                     th:data-form="${form}"
-                                     th:data-form-number="${matrixData.formNumbers.get(form)}"
-                                     th:title="${form}"
+                                <div th:each="form : ${forms}" class="selection-box inactive" 
+                                     th:data-form="${form.name}"
+                                     th:data-form-number="${form.id}"
+                                     th:title="${form.name}"
                                      onclick="selectForm(this)">
                                     <button class="item-info-button" 
                                             th:data-type="'form'"
-                                            th:data-name="${form}"
-                                            th:data-number="${matrixData.formNumbers.get(form)}">
+                                            th:data-name="${form.name}"
+                                            th:data-number="${form.id}"
+                                            th:data-description="${form.description}">
                                         ℹ️
                                     </button>
                                     <div class="tooltip">
-                                        <h4 th:text="${form}"></h4>
-                                        <p>Form Kodu: F<span th:text="${matrixData.formNumbers.get(form)}"></span></p>
-                                        <p>Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir.</p>
+                                        <h4 th:text="${form.name}"></h4>
+                                        <p>Form Kodu: <span th:text="${form.id}"></span></p>
+                                        <p th:text="${form.description}"></p>
+                                        <p th:if="${!form.features.empty}">
+                                            <strong>Özellikler:</strong><br/>
+                                            <span th:each="feature : ${form.features}" th:text="${feature + ', '}"></span>
+                                        </p>
                                     </div>
-                                    <img th:if="${matrixData.formNumbers.get(form)}" 
-                                         th:src="@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + '.JPG'}"
+                                    <img th:if="${form.id}" 
+                                         th:src="@{'/icons/Form icon/' + ${form.id} + ' ' + ${form.name} + '/' + ${form.id} + '.jpg'}"
                                          class="form-icon" 
-                                         th:onerror="this.src=@{'/icons/Form icon/F' + ${matrixData.formNumbers.get(form)} + ' ' + ${form} + '/F' + ${matrixData.formNumbers.get(form)} + ' wire.png'}"
+                                         th:onerror="this.src=@{'/icons/Form icon/' + ${form.id} + ' ' + ${form.name} + '/' + ${form.id} + ' wire.png'}"
                                          onerror="this.onerror=null; this.style.display='none'">
-                                    <span class="form-name" th:text="${form}"></span>
+                                    <span class="form-name" th:text="${form.name}"></span>
                                 </div>
                             </div>
                         </div>
@@ -785,51 +801,52 @@
             }
         });
 
-        function showItemInfo(type, name, number) {
+        function showItemInfo(type, name, number, description) {
             const popupOverlay = document.getElementById('popupOverlay');
             const popupInfo = document.getElementById('popupInfo');
             let content = '';
+            
+            // Get the features from the tooltip
+            const tooltip = document.querySelector(`.selection-box[data-${type}="${name}"] .tooltip`);
+            const features = tooltip ? tooltip.querySelector('p:last-child')?.textContent : '';
             
             switch(type) {
                 case 'material':
                     content = `
                         <h3>${name}</h3>
-                        <p>Malzeme Kodu: M${number}</p>
+                        <p>Malzeme Kodu: ${number}</p>
                         <div class="info-details">
-                            <h4>Özellikler:</h4>
-                            <ul>
-                                <li>Bu malzeme, belirli teknikler ve formlarla uyumlu çalışabilir</li>
-                                <li>Malzeme seçimi, üretim sürecinin temelini oluşturur</li>
-                                <li>Her malzemenin kendine özgü işleme gereksinimleri vardır</li>
-                            </ul>
+                            <p>${description}</p>
+                            ${features ? `<div class="features">
+                                <h4>Özellikler:</h4>
+                                <p>${features}</p>
+                            </div>` : ''}
                         </div>
                     `;
                     break;
                 case 'technique':
                     content = `
                         <h3>${name}</h3>
-                        <p>Teknik Kodu: T${number}</p>
+                        <p>Teknik Kodu: ${number}</p>
                         <div class="info-details">
-                            <h4>Özellikler:</h4>
-                            <ul>
-                                <li>Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir</li>
-                                <li>Teknik seçimi, üretim yöntemini belirler</li>
-                                <li>Her tekniğin kendine özgü avantajları ve sınırlamaları vardır</li>
-                            </ul>
+                            <p>${description}</p>
+                            ${features ? `<div class="features">
+                                <h4>Özellikler:</h4>
+                                <p>${features}</p>
+                            </div>` : ''}
                         </div>
                     `;
                     break;
                 case 'form':
                     content = `
                         <h3>${name}</h3>
-                        <p>Form Kodu: F${number}</p>
+                        <p>Form Kodu: ${number}</p>
                         <div class="info-details">
-                            <h4>Özellikler:</h4>
-                            <ul>
-                                <li>Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir</li>
-                                <li>Form seçimi, ürünün görsel ve fonksiyonel özelliklerini belirler</li>
-                                <li>Her formun kendine özgü tasarım gereksinimleri vardır</li>
-                            </ul>
+                            <p>${description}</p>
+                            ${features ? `<div class="features">
+                                <h4>Özellikler:</h4>
+                                <p>${features}</p>
+                            </div>` : ''}
                         </div>
                     `;
                     break;
@@ -847,19 +864,9 @@
                     const type = this.getAttribute('data-type');
                     const name = this.getAttribute('data-name');
                     const number = this.getAttribute('data-number');
+                    const description = this.getAttribute('data-description');
                     
-                    // Önce tüm tooltipleri kapat
-                    document.querySelectorAll('.tooltip').forEach(tooltip => {
-                        tooltip.classList.remove('show');
-                    });
-                    
-                    // Tıklanan butonun tooltip'ini göster
-                    const tooltip = this.nextElementSibling;
-                    if (tooltip && tooltip.classList.contains('tooltip')) {
-                        tooltip.classList.add('show');
-                        console.log('Showing tooltip for:', name);
-                        console.log('Tooltip content:', tooltip.innerHTML);
-                    }
+                    showItemInfo(type, name, number, description);
                 });
             });
 
