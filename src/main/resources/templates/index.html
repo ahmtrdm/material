@@ -382,7 +382,7 @@
                                     <img th:if="${material.id}" 
                                          th:src="@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.jpg'}"
                                          class="material-icon" 
-                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.JPG'}"
+                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.png'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="material-name" th:text="${material.name}"></span>
                                 </div>
@@ -421,7 +421,7 @@
                                     <img th:if="${technique.id}" 
                                          th:src="@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.jpg'}"
                                          class="technique-icon" 
-                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.JPG'}"
+                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.png'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="technique-name" th:text="${technique.name}"></span>
                                 </div>
@@ -801,13 +801,35 @@
             }
         });
 
+        // Türkçe karakterleri ve özel karakterleri normalize etmek için yardımcı fonksiyon
+        function normalizeTurkishChars(str) {
+            return str
+                .replace(/[\n\r]+/g, ' ') // Satır sonlarını boşluğa çevir
+                .replace(/\s+/g, ' ') // Birden fazla boşluğu tek boşluğa çevir
+                .replace(/ğ/g, 'g')
+                .replace(/Ğ/g, 'G')
+                .replace(/ü/g, 'u')
+                .replace(/Ü/g, 'U')
+                .replace(/ş/g, 's')
+                .replace(/Ş/g, 'S')
+                .replace(/ı/g, 'i')
+                .replace(/İ/g, 'I')
+                .replace(/ö/g, 'o')
+                .replace(/Ö/g, 'O')
+                .replace(/ç/g, 'c')
+                .replace(/Ç/g, 'C')
+                .trim(); // Baştaki ve sondaki boşlukları temizle
+        }
+
         function showItemInfo(type, name, number, description) {
             const popupOverlay = document.getElementById('popupOverlay');
             const popupInfo = document.getElementById('popupInfo');
             let content = '';
             
             // Get the features from the tooltip
-            const tooltip = document.querySelector(`.selection-box[data-${type}="${name}"] .tooltip`);
+            const normalizedName = normalizeTurkishChars(name);
+            const escapedName = normalizedName.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+            const tooltip = document.querySelector(`.selection-box[data-${type}="${escapedName}"] .tooltip`);
             const features = tooltip ? tooltip.querySelector('p:last-child')?.textContent : '';
             
             switch(type) {
