@@ -24,6 +24,10 @@ public class ExcelService {
     
     private static final Logger logger = LoggerFactory.getLogger(ExcelService.class);
     
+    private Map<String, Set<String>> materialFeatures = new HashMap<>();
+    private Map<String, Set<String>> techniqueFeatures = new HashMap<>();
+    private Map<String, Set<String>> formFeatures = new HashMap<>();
+
     public Map<String, Object> readExcelFiles() {
         Map<String, Object> result = new HashMap<>();
         Map<String, WebObject> materials = new HashMap<>();
@@ -223,6 +227,7 @@ public class ExcelService {
                         }
                         
                         Cell materialNameCell = row.getCell(9); // J kolonu
+                        Cell materialCodeCell = row.getCell(8); // I kolonu
                         Cell featureCell = row.getCell(11); // L kolonu
                         
                         logger.debug("Processing row {}: Material cell: {}, Feature cell: {}", 
@@ -231,25 +236,46 @@ public class ExcelService {
                         
                         if (materialNameCell != null) {
                             String materialName = getCellValueAsString(materialNameCell);
-                            logger.info("Row {}: Reading material name: '{}'", i + 1, materialName);
+                            String materialCode = materialCodeCell != null ? getCellValueAsString(materialCodeCell) : "";
+                            logger.info("Row {}: Reading material name: '{}' with code: '{}'", i + 1, materialName, materialCode);
                             
                             if (!materialName.isEmpty() && !materialName.equals("Malzemeler") && !materialName.equals("Malzeme Kataloğu")) {
+                                // Malzeme adını özellik olarak ekle
+                                materialFeatures.computeIfAbsent(materialName, k -> new LinkedHashSet<>()).add(materialName);
+                                if (!materialCode.isEmpty()) {
+                                    this.materialFeatures.computeIfAbsent(materialCode, k -> new LinkedHashSet<>()).add(materialName);
+                                }
+                                logger.info("Added material name '{}' as feature for code '{}'", materialName, materialCode);
+                                
+                                // Eğer özellik hücresi varsa, onu da ekle
                                 if (featureCell != null) {
                                     String feature = getCellValueAsString(featureCell);
                                     logger.info("Row {}: Reading feature for '{}': '{}'", i + 1, materialName, feature);
                                     
                                     if (!feature.isEmpty() && !feature.equals("Özellikler")) {
-                                        materialFeatures.computeIfAbsent(materialName, k -> new LinkedHashSet<>()).add(feature);
-                                        logger.info("Added feature '{}' to material '{}'", feature, materialName);
+                                        // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
+                                        String[] features = feature.split(",");
+                                        for (String f : features) {
+                                            f = f.trim();
+                                            if (!f.isEmpty()) {
+                                                // Aynı malzeme koduna sahip tüm özellikleri topla
+                                                materialFeatures.computeIfAbsent(materialName, k -> new LinkedHashSet<>()).add(f);
+                                                if (!materialCode.isEmpty()) {
+                                                    this.materialFeatures.computeIfAbsent(materialCode, k -> new LinkedHashSet<>()).add(f);
+                                                }
+                                                logger.info("Added feature '{}' to material '{}' with code '{}'", f, materialName, materialCode);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                     
+                    // Malzeme özelliklerini logla
                     logger.info("=== Material Features Summary ===");
-                    materialFeatures.forEach((material, features) -> {
-                        logger.info("Material: '{}'", material);
+                    this.materialFeatures.forEach((code, features) -> {
+                        logger.info("Material Code: '{}'", code);
                         logger.info("Features:");
                         features.forEach(feature -> logger.info("  - {}", feature));
                         logger.info("-------------------");
@@ -363,7 +389,7 @@ public class ExcelService {
                     // Teknik adlarını ve özelliklerini tutacak map
                     Map<String, Set<String>> techniqueFeatures = new HashMap<>();
                     
-                    // H5'ten başlayarak teknik isimlerini ve J5'ten başlayarak özellikleri oku
+                    // J5'ten başlayarak teknik isimlerini ve E5'ten başlayarak özellikleri oku
                     for (int i = 4; i <= techniqueSheet.getLastRowNum(); i++) {
                         Row row = techniqueSheet.getRow(i);
                         if (row == null) {
@@ -371,8 +397,58 @@ public class ExcelService {
                             continue;
                         }
                         
-                        Cell nameCell = row.getCell(7); // H kolonu
+                        Cell nameCell = row.getCell(7); // H kolonu (Teknik adı - Türkçe)
                         Cell codeCell = row.getCell(6); // G kolonu
+                        Cell featureCell = row.getCell(4); // E kolonu (PROCESSES - İngilizce)
+                        
+                        logger.debug("Processing row {}: Technique name cell: {}, Feature cell: {}", 
+                            i + 1, nameCell != null ? nameCell.getCellType() : "null", 
+                            featureCell != null ? featureCell.getCellType() : "null");
+                        
+                        if (nameCell != null) {
+                            String techniqueName = getCellValueAsString(nameCell);
+                            String techniqueCode = codeCell != null ? getCellValueAsString(codeCell) : "";
+                            logger.info("Row {}: Reading technique name: '{}' with code: '{}'", i + 1, techniqueName, techniqueCode);
+                            
+                            if (!techniqueName.isEmpty() && !techniqueName.equals("Teknikler") && !techniqueName.equals("Teknik Kataloğu")) {
+                                if (featureCell != null) {
+                                    String feature = getCellValueAsString(featureCell);
+                                    logger.info("Row {}: Reading feature for '{}': '{}'", i + 1, techniqueName, feature);
+                                    
+                                    if (!feature.isEmpty() && !feature.equals("PROCESSES")) {
+                                        // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
+                                        String[] features = feature.split(",");
+                                        for (String f : features) {
+                                            f = f.trim();
+                                            if (!f.isEmpty()) {
+                                                techniqueFeatures.computeIfAbsent(techniqueName, k -> new LinkedHashSet<>()).add(f);
+                                                if (!techniqueCode.isEmpty()) {
+                                                    this.techniqueFeatures.computeIfAbsent(techniqueCode, k -> new LinkedHashSet<>()).add(f);
+                                                }
+                                                logger.info("Added feature '{}' to technique '{}' with code '{}'", f, techniqueName, techniqueCode);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    logger.info("=== Technique Features Summary ===");
+                    techniqueFeatures.forEach((technique, features) -> {
+                        logger.info("Technique: '{}'", technique);
+                        logger.info("Features:");
+                        features.forEach(feature -> logger.info("  - {}", feature));
+                        logger.info("-------------------");
+                    });
+                    
+                    // Şimdi teknik detaylarını oluştur
+                    for (int i = 4; i <= techniqueSheet.getLastRowNum(); i++) {
+                        Row row = techniqueSheet.getRow(i);
+                        if (row == null) continue;
+                        
+                        Cell codeCell = row.getCell(6); // G kolonu
+                        Cell nameCell = row.getCell(7); // H kolonu
                         
                         if (nameCell == null) continue;
                         String name = getCellValueAsString(nameCell);
@@ -498,13 +574,15 @@ public class ExcelService {
                         }
                         
                         Cell formNameCell = row.getCell(3); // D kolonu
+                        Cell formCodeCell = row.getCell(2); // C kolonu
                         
                         logger.debug("Processing row {}: Form cell: {}", 
                             i + 1, formNameCell != null ? formNameCell.getCellType() : "null");
                         
                         if (formNameCell != null) {
                             String formName = getCellValueAsString(formNameCell);
-                            logger.info("Row {}: Reading form name: '{}'", i + 1, formName);
+                            String formCode = formCodeCell != null ? getCellValueAsString(formCodeCell) : "";
+                            logger.info("Row {}: Reading form name: '{}' with code: '{}'", i + 1, formName, formCode);
                             
                             if (!formName.isEmpty() && !formName.equals("Formlar") && !formName.equals("Form Kataloğu")) {
                                 // F, G, H kolonlarından özellikleri oku
@@ -515,9 +593,19 @@ public class ExcelService {
                                         logger.info("Row {}: Reading feature for '{}' from column {}: '{}'", 
                                             i + 1, formName, col, feature);
                                         
-                                        if (!feature.isEmpty() && !feature.equals("Özellikler")) {
-                                            formFeatures.computeIfAbsent(formName, k -> new LinkedHashSet<>()).add(feature);
-                                            logger.info("Added feature '{}' to form '{}'", feature, formName);
+                                        if (!feature.isEmpty() && !feature.equals("Oluşturma") && !feature.equals("Tanımlar") && !feature.equals("Mikro Mimari Örnekler")) {
+                                            // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
+                                            String[] features = feature.split(",");
+                                            for (String f : features) {
+                                                f = f.trim();
+                                                if (!f.isEmpty()) {
+                                                    formFeatures.computeIfAbsent(formName, k -> new LinkedHashSet<>()).add(f);
+                                                    if (!formCode.isEmpty()) {
+                                                        this.formFeatures.computeIfAbsent(formCode, k -> new LinkedHashSet<>()).add(f);
+                                                    }
+                                                    logger.info("Added feature '{}' to form '{}' with code '{}'", f, formName, formCode);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -711,5 +799,17 @@ public class ExcelService {
             .replace("ç", "c")
             .replace("Ç", "C")
             .trim(); // Baştaki ve sondaki boşlukları temizle
+    }
+
+    public Set<String> getMaterialFeatures(String number) {
+        return materialFeatures.getOrDefault(number, new HashSet<>());
+    }
+
+    public Set<String> getTechniqueFeatures(String number) {
+        return techniqueFeatures.getOrDefault(number, new HashSet<>());
+    }
+
+    public Set<String> getFormFeatures(String number) {
+        return formFeatures.getOrDefault(number, new HashSet<>());
     }
 } 

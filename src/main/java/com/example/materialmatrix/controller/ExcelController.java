@@ -5,6 +5,7 @@ import com.example.materialmatrix.model.Relationship;
 import com.example.materialmatrix.model.WebObject;
 import com.example.materialmatrix.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +16,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -74,5 +78,51 @@ public class ExcelController {
             e.printStackTrace();
             return "error";
         }
+    }
+
+    @GetMapping("/checkIcon")
+    public ResponseEntity<Boolean> checkIcon(@RequestParam String type, @RequestParam String number) {
+        String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
+        File directory = new File(referansPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
+            return ResponseEntity.ok(files != null && files.length > 0);
+        }
+        return ResponseEntity.ok(false);
+    }
+
+    @GetMapping("/listIcons")
+    public ResponseEntity<List<String>> listIcons(@RequestParam String type, @RequestParam String number) {
+        String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
+        File directory = new File(referansPath);
+        List<String> iconNames = new ArrayList<>();
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
+            if (files != null) {
+                for (File file : files) {
+                    iconNames.add(file.getName());
+                }
+            }
+        }
+        return ResponseEntity.ok(iconNames);
+    }
+
+    @GetMapping("/getFeatures")
+    public ResponseEntity<Set<String>> getFeatures(@RequestParam String type, @RequestParam String number) {
+        Set<String> features = new HashSet<>();
+        
+        switch(type) {
+            case "material":
+                features = excelService.getMaterialFeatures(number);
+                break;
+            case "technique":
+                features = excelService.getTechniqueFeatures(number);
+                break;
+            case "form":
+                features = excelService.getFormFeatures(number);
+                break;
+        }
+        
+        return ResponseEntity.ok(features);
     }
 } 

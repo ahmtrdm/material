@@ -81,7 +81,7 @@
             flex-direction: column;
             align-items: center;
             padding: 6px;
-            margin: 4px;
+            margin: 2px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             cursor: pointer;
@@ -153,7 +153,7 @@
         .selection-boxes {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
             justify-content: center;
             padding: 4px;
         }
@@ -826,56 +826,70 @@
             const popupInfo = document.getElementById('popupInfo');
             let content = '';
             
-            // Get the features from the tooltip
-            const normalizedName = normalizeTurkishChars(name);
-            const escapedName = normalizedName.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
-            const tooltip = document.querySelector(`.selection-box[data-${type}="${escapedName}"] .tooltip`);
-            const features = tooltip ? tooltip.querySelector('p:last-child')?.textContent : '';
-            
-            switch(type) {
-                case 'material':
-                    content = `
-                        <h3>${name}</h3>
-                        <p>Malzeme Kodu: ${number}</p>
-                        <div class="info-details">
-                            <p>${description}</p>
-                            ${features ? `<div class="features">
-                                <h4>Özellikler:</h4>
-                                <p>${features}</p>
-                            </div>` : ''}
-                        </div>
-                    `;
-                    break;
-                case 'technique':
-                    content = `
-                        <h3>${name}</h3>
-                        <p>Teknik Kodu: ${number}</p>
-                        <div class="info-details">
-                            <p>${description}</p>
-                            ${features ? `<div class="features">
-                                <h4>Özellikler:</h4>
-                                <p>${features}</p>
-                            </div>` : ''}
-                        </div>
-                    `;
-                    break;
-                case 'form':
-                    content = `
-                        <h3>${name}</h3>
-                        <p>Form Kodu: ${number}</p>
-                        <div class="info-details">
-                            <p>${description}</p>
-                            ${features ? `<div class="features">
-                                <h4>Özellikler:</h4>
-                                <p>${features}</p>
-                            </div>` : ''}
-                        </div>
-                    `;
-                    break;
-            }
-            
-            popupInfo.innerHTML = content;
-            popupOverlay.style.display = 'flex';
+            // Fetch features from the server
+            fetch(`/getFeatures?type=${type}&number=${number}`)
+                .then(response => response.json())
+                .then(features => {
+                    // Fetch icon names from the server
+                    return fetch(`/listIcons?type=${type}&number=${number}`)
+                        .then(response => response.json())
+                        .then(iconNames => {
+                            let iconContent = '';
+                            iconNames.forEach(iconName => {
+                                const iconPath = `/icons/${type} icon/${number}/Referans/${iconName}`;
+                                iconContent += `<img src="${iconPath}" alt="${name} icon" style="width: 85px; height: 85px; margin: 5px;">`;
+                            });
+                            
+                            let featuresContent = '';
+                            if (features && features.length > 0) {
+                                featuresContent = `
+                                    <div class="features">
+                                        <h4>Özellikler:</h4>
+                                        <p>${Array.from(features).join(', ')}</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            switch(type) {
+                                case 'material':
+                                    content = `
+                                        <h3>${name}</h3>
+                                        <p>Malzeme Kodu: ${number}</p>
+                                        <div class="info-details">
+                                            <p>${description}</p>
+                                            ${featuresContent}
+                                            ${iconContent ? `<div class="icons">${iconContent}</div>` : ''}
+                                        </div>
+                                    `;
+                                    break;
+                                case 'technique':
+                                    content = `
+                                        <h3>${name}</h3>
+                                        <p>Teknik Kodu: ${number}</p>
+                                        <div class="info-details">
+                                            <p>${description}</p>
+                                            ${featuresContent}
+                                            ${iconContent ? `<div class="icons">${iconContent}</div>` : ''}
+                                        </div>
+                                    `;
+                                    break;
+                                case 'form':
+                                    content = `
+                                        <h3>${name}</h3>
+                                        <p>Form Kodu: ${number}</p>
+                                        <div class="info-details">
+                                            <p>${description}</p>
+                                            ${featuresContent}
+                                            ${iconContent ? `<div class="icons">${iconContent}</div>` : ''}
+                                        </div>
+                                    `;
+                                    break;
+                            }
+                            
+                            popupInfo.innerHTML = content;
+                            popupOverlay.style.display = 'flex';
+                        });
+                });
         }
 
         // Info butonları için event listener
