@@ -380,9 +380,9 @@
                                         </p>
                                     </div>
                                     <img th:if="${material.id}" 
-                                         th:src="@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.jpg'}"
+                                         th:src="@{'/icons/Malzeme icon/' + ${material.id} + '.jpg'}"
                                          class="material-icon" 
-                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.png'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '_' + ${material.name} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
+                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="material-name" th:text="${material.name}"></span>
                                 </div>
@@ -419,9 +419,9 @@
                                         </p>
                                     </div>
                                     <img th:if="${technique.id}" 
-                                         th:src="@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.jpg'}"
+                                         th:src="@{'/icons/Teknikler icon/' + ${technique.id} + '.jpg'}"
                                          class="technique-icon" 
-                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.png'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '_' + ${technique.name} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
+                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="technique-name" th:text="${technique.name}"></span>
                                 </div>
@@ -458,9 +458,9 @@
                                         </p>
                                     </div>
                                     <img th:if="${form.id}" 
-                                         th:src="@{'/icons/Form icon/' + ${form.id} + ' ' + ${form.name} + '/' + ${form.id} + '.jpg'}"
+                                         th:src="@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + '.jpg'}"
                                          class="form-icon" 
-                                         th:onerror="this.src=@{'/icons/Form icon/' + ${form.id} + ' ' + ${form.name} + '/' + ${form.id} + ' wire.png'}"
+                                         th:onerror="this.src=@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + ' wire.png'}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="form-name" th:text="${form.name}"></span>
                                 </div>

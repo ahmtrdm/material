@@ -284,9 +284,8 @@ public class ExcelService {
                                 material.setId("M" + String.format("%02d", materials.size() + 1));
                             }
                             material.setDescription("Bu malzeme, belirli teknikler ve formlarla uyumlu çalışabilir.");
-                            // Malzeme ikonları için dosya yolu: src/main/resources/static/icons/Malzeme icon/M01_Seramik.jpg
-                            String materialFileName = material.getId() + "_" + name.replace(" ", "");
-                            String materialPath = "src/main/resources/static/icons/Malzeme icon/" + materialFileName;
+                            // Malzeme ikonları için dosya yolu: src/main/resources/static/icons/Malzeme icon/M01.jpg
+                            String materialPath = "src/main/resources/static/icons/Malzeme icon/" + material.getId();
                             // Check for both JPG and PNG extensions
                             if (new File(materialPath + ".jpg").exists() || new File(materialPath + ".JPG").exists()) {
                                 material.setFilesDirectory(materialPath + ".jpg");
@@ -406,9 +405,8 @@ public class ExcelService {
                             }
                         }
                         technique.setDescription("Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir.");
-                        // Teknik ikonları için dosya yolu: src/main/resources/static/icons/Teknikler icon/T01_Presleme.jpg
-                        String techniqueFileName = technique.getId() + "_" + name.replace(" ", "");
-                        String techniquePath = "src/main/resources/static/icons/Teknikler icon/" + techniqueFileName;
+                        // Teknik ikonları için dosya yolu: src/main/resources/static/icons/Teknikler icon/T01.jpg
+                        String techniquePath = "src/main/resources/static/icons/Teknikler icon/" + technique.getId();
                         // Check for both JPG and PNG extensions
                         if (new File(techniquePath + ".jpg").exists() || new File(techniquePath + ".JPG").exists()) {
                             technique.setFilesDirectory(techniquePath + ".jpg");
@@ -574,8 +572,8 @@ public class ExcelService {
                             }
                         }
                         formObj.setDescription("Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir.");
-                        // Form ikonları için dosya yolu: src/main/resources/static/icons/Form icon/F01 Paralel Ekstrüzyon Doğrusal/F01.jpg
-                        String formDir = formObj.getId() + " " + name;
+                        // Form ikonları için dosya yolu: src/main/resources/static/icons/Form icon/F01/F01.jpg
+                        String formDir = formObj.getId();
                         formObj.setFilesDirectory("src/main/resources/static/icons/Form icon/" + formDir + "/" + formObj.getId() + ".jpg");
                         formObj.setClickable(true);
                         
