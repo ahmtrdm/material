@@ -29,4 +29,38 @@ hs_err_pid*
 replay_pid*
 
 # Mac OS specific files
-.DS_Store 
+.DS_Store
+
+# Help file
+HELP.md
+
+# Maven wrapper exclusion
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# STS specific files
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IntelliJ IDEA specific files
+*.iws
+*.ipr
+
+# NetBeans specific files
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Project specific files
+src/main/resources/Archive.zip 
