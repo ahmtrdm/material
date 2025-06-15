@@ -458,7 +458,7 @@
                                     <img th:if="${form.id}" 
                                          th:src="@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + '.jpg'}"
                                          class="form-icon" 
-                                         th:onerror="this.src=@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + ' wire.png'}"
+                                         th:onerror="this.src=@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="form-name" th:text="${form.id + ' - ' + form.name}"></span>
                                 </div>

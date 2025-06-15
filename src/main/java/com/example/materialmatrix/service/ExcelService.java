@@ -312,11 +312,19 @@ public class ExcelService {
                             material.setDescription("Bu malzeme, belirli teknikler ve formlarla uyumlu çalışabilir.");
                             // Malzeme ikonları için dosya yolu: src/main/resources/static/icons/Malzeme icon/M01.jpg
                             String materialPath = "src/main/resources/static/icons/Malzeme icon/" + material.getId();
-                            // Check for both JPG and PNG extensions
-                            if (new File(materialPath + ".jpg").exists() || new File(materialPath + ".JPG").exists()) {
-                                material.setFilesDirectory(materialPath + ".jpg");
-                            } else if (new File(materialPath + ".png").exists() || new File(materialPath + ".PNG").exists()) {
-                                material.setFilesDirectory(materialPath + ".png");
+                            // Check for all case variations of jpg and png extensions
+                            if (new File(materialPath + ".jpg").exists() || new File(materialPath + ".JPG").exists() ||
+                                new File(materialPath + ".png").exists() || new File(materialPath + ".PNG").exists()) {
+                                // Try each extension in order
+                                if (new File(materialPath + ".jpg").exists()) {
+                                    material.setFilesDirectory(materialPath + ".jpg");
+                                } else if (new File(materialPath + ".JPG").exists()) {
+                                    material.setFilesDirectory(materialPath + ".JPG");
+                                } else if (new File(materialPath + ".png").exists()) {
+                                    material.setFilesDirectory(materialPath + ".png");
+                                } else if (new File(materialPath + ".PNG").exists()) {
+                                    material.setFilesDirectory(materialPath + ".PNG");
+                                }
                             } else {
                                 material.setFilesDirectory(materialPath + ".jpg"); // Default to jpg if no file exists
                             }
@@ -483,11 +491,19 @@ public class ExcelService {
                         technique.setDescription("Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir.");
                         // Teknik ikonları için dosya yolu: src/main/resources/static/icons/Teknikler icon/T01.jpg
                         String techniquePath = "src/main/resources/static/icons/Teknikler icon/" + technique.getId();
-                        // Check for both JPG and PNG extensions
-                        if (new File(techniquePath + ".jpg").exists() || new File(techniquePath + ".JPG").exists()) {
-                            technique.setFilesDirectory(techniquePath + ".jpg");
-                        } else if (new File(techniquePath + ".png").exists() || new File(techniquePath + ".PNG").exists()) {
-                            technique.setFilesDirectory(techniquePath + ".png");
+                        // Check for all case variations of jpg and png extensions
+                        if (new File(techniquePath + ".jpg").exists() || new File(techniquePath + ".JPG").exists() ||
+                            new File(techniquePath + ".png").exists() || new File(techniquePath + ".PNG").exists()) {
+                            // Try each extension in order
+                            if (new File(techniquePath + ".jpg").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".jpg");
+                            } else if (new File(techniquePath + ".JPG").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".JPG");
+                            } else if (new File(techniquePath + ".png").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".png");
+                            } else if (new File(techniquePath + ".PNG").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".PNG");
+                            }
                         } else {
                             technique.setFilesDirectory(techniquePath + ".jpg"); // Default to jpg if no file exists
                         }
@@ -662,7 +678,23 @@ public class ExcelService {
                         formObj.setDescription("Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir.");
                         // Form ikonları için dosya yolu: src/main/resources/static/icons/Form icon/F01/F01.jpg
                         String formDir = formObj.getId();
-                        formObj.setFilesDirectory("src/main/resources/static/icons/Form icon/" + formDir + "/" + formObj.getId() + ".jpg");
+                        String formPath = "src/main/resources/static/icons/Form icon/" + formDir + "/" + formObj.getId();
+                        // Check for all case variations of jpg and png extensions
+                        if (new File(formPath + ".jpg").exists() || new File(formPath + ".JPG").exists() ||
+                            new File(formPath + ".png").exists() || new File(formPath + ".PNG").exists()) {
+                            // Try each extension in order
+                            if (new File(formPath + ".jpg").exists()) {
+                                formObj.setFilesDirectory(formPath + ".jpg");
+                            } else if (new File(formPath + ".JPG").exists()) {
+                                formObj.setFilesDirectory(formPath + ".JPG");
+                            } else if (new File(formPath + ".png").exists()) {
+                                formObj.setFilesDirectory(formPath + ".png");
+                            } else if (new File(formPath + ".PNG").exists()) {
+                                formObj.setFilesDirectory(formPath + ".PNG");
+                            }
+                        } else {
+                            formObj.setFilesDirectory(formPath + ".jpg"); // Default to jpg if no file exists
+                        }
                         formObj.setClickable(true);
                         
                         // Form özelliklerini ekle
