@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,31 @@ public class ExcelController {
     private ExcelService excelService;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String intro1() {
+        return "intro1";
+    }
+
+    @GetMapping("/intro2")
+    public String intro2() {
+        return "intro2";
+    }
+
+    @GetMapping("/matrix")
+    public String matrix(Model model) {
         try {
             Map<String, Object> data = excelService.readExcelFiles();
             
-            List<WebObject> materials = ((Map<String, WebObject>) data.get("materials")).values().stream().collect(Collectors.toList());
-            List<WebObject> techniques = ((Map<String, WebObject>) data.get("techniques")).values().stream().collect(Collectors.toList());
-            List<WebObject> forms = ((Map<String, WebObject>) data.get("forms")).values().stream().collect(Collectors.toList());
+            List<WebObject> materials = ((Map<String, WebObject>) data.get("materials")).values().stream()
+                .sorted(Comparator.comparing(WebObject::getId))
+                .collect(Collectors.toList());
+                
+            List<WebObject> techniques = ((Map<String, WebObject>) data.get("techniques")).values().stream()
+                .sorted(Comparator.comparing(WebObject::getId))
+                .collect(Collectors.toList());
+                
+            List<WebObject> forms = ((Map<String, WebObject>) data.get("forms")).values().stream()
+                .sorted(Comparator.comparing(WebObject::getId))
+                .collect(Collectors.toList());
             
             MatrixData matrixData = new MatrixData(
                 materials.stream().map(WebObject::getName).collect(Collectors.toList()),
@@ -54,27 +73,6 @@ public class ExcelController {
             model.addAttribute("forms", forms);
             return "index";
         } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-        }
-    }
-
-    @PostMapping("/upload")
-    @ResponseBody
-    public String uploadFile(@RequestParam("file") MultipartFile file) {
-        try {
-            // Get the file and save it
-            String fileName = "M-T_F Matrisi.xlsx";
-            Path path = Paths.get("src/main/resources/" + fileName);
-            
-            // Delete existing file if it exists
-            Files.deleteIfExists(path);
-            
-            // Save the new file
-            Files.copy(file.getInputStream(), path);
-            
-            return "success";
-        } catch (IOException e) {
             e.printStackTrace();
             return "error";
         }

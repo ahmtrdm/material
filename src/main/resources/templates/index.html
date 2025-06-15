@@ -158,36 +158,7 @@
             padding: 4px;
         }
         .file-upload {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            text-align: center;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            border: 1px solid #e0e0e0;
-        }
-        .file-upload input[type="file"] {
             display: none;
-        }
-        .file-upload label {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #4a90e2;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 0.9em;
-        }
-        .file-upload label:hover {
-            background-color: #357abd;
-        }
-        .file-name {
-            margin-top: 8px;
-            color: #666;
-            font-size: 0.9em;
         }
         .start-selection {
             text-align: center;
@@ -322,25 +293,52 @@
             font-size: 0.8em;
             line-height: 1.4;
         }
+        /* Hero image styles */
+        .hero-image-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 2rem auto;
+            text-align: center;
+            padding: 0 1rem;
+            background: transparent;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: transparent;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-image {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-image {
+                height: 150px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container mt-4">
         <h1 class="text-center mb-4">Malzeme-Teknik-Form Matrisi</h1>
         
+        <!-- Büyük fotoğraf alanı -->
+        <div class="hero-image-container mb-4">
+            <img src="/images/hero-image.jpg" alt="Malzeme-Teknik-Form Matrisi" class="hero-image">
+        </div>
+        
         <div class="start-selection">
             <h3 class="mb-4">Başlangıç seçimini yapın:</h3>
             <button class="btn" onclick="startWith('material')">Malzeme ile Başla</button>
             <button class="btn" onclick="startWith('technique')">Teknik ile Başla</button>
             <button class="btn" onclick="startWith('form')">Form ile Başla</button>
-        </div>
-
-        <div class="file-upload">
-            <form id="uploadForm" th:action="@{/upload}" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" id="file" accept=".xlsx,.xls" onchange="updateFileName(this)">
-                <label for="file">Excel Dosyası Seç</label>
-                <div class="file-name" id="fileName"></div>
-            </form>
         </div>
 
         <div class="matrix-container" style="display: none;">
@@ -384,7 +382,7 @@
                                          class="material-icon" 
                                          th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
-                                    <span class="material-name" th:text="${material.name}"></span>
+                                    <span class="material-name" th:text="${material.id + ' - ' + material.name}"></span>
                                 </div>
                             </div>
                         </div>
@@ -423,7 +421,7 @@
                                          class="technique-icon" 
                                          th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
-                                    <span class="technique-name" th:text="${technique.name}"></span>
+                                    <span class="technique-name" th:text="${technique.id + ' - ' + technique.name}"></span>
                                 </div>
                             </div>
                         </div>
@@ -462,7 +460,7 @@
                                          class="form-icon" 
                                          th:onerror="this.src=@{'/icons/Form icon/' + ${form.id} + '/' + ${form.id} + ' wire.png'}"
                                          onerror="this.onerror=null; this.style.display='none'">
-                                    <span class="form-name" th:text="${form.name}"></span>
+                                    <span class="form-name" th:text="${form.id + ' - ' + form.name}"></span>
                                 </div>
                             </div>
                         </div>
@@ -491,7 +489,6 @@
             startType = type;
             document.querySelector('.start-selection').style.display = 'none';
             document.querySelector('.matrix-container').style.display = 'block';
-            document.querySelector('.file-upload').style.display = 'none';
             
             // Reset all selections
             resetAllSelections();
@@ -552,14 +549,6 @@
                 option.classList.remove('selected', 'inactive');
                 option.classList.add('active');
             });
-        }
-
-        function updateFileName(input) {
-            const fileName = input.files[0]?.name || 'Dosya seçilmedi';
-            document.getElementById('fileName').textContent = fileName;
-            if (input.files[0]) {
-                input.form.submit();
-            }
         }
 
         function selectMaterial(element) {
@@ -727,7 +716,6 @@
             startType = null;
             document.querySelector('.start-selection').style.display = 'block';
             document.querySelector('.matrix-container').style.display = 'none';
-            document.querySelector('.file-upload').style.display = 'block';
             
             // Reset category orders
             const categories = document.querySelectorAll('.category');
@@ -915,6 +903,133 @@
                 }
             });
         });
+
+        // Malzemeleri sırala ve göster
+        const materials = matrixData.materials.map(name => {
+            const code = matrixData.materialNumbers[name] || '';
+            return { name, code };
+        }).sort((a, b) => a.code.localeCompare(b.code));
+
+        materials.forEach(material => {
+            const materialDiv = document.createElement('div');
+            materialDiv.className = 'material';
+            materialDiv.innerHTML = `
+                <div class="material-name" data-material="${material.name}">
+                    ${material.code} - ${material.name}
+                </div>
+            `;
+            materialDiv.addEventListener('click', () => showMaterialInfo(material.name));
+            materialsContainer.appendChild(materialDiv);
+        });
+
+        // Teknikleri sırala ve göster
+        const techniques = matrixData.techniques.map(name => {
+            const code = matrixData.techniqueNumbers[name] || '';
+            return { name, code };
+        }).sort((a, b) => a.code.localeCompare(b.code));
+
+        techniques.forEach(technique => {
+            const techniqueDiv = document.createElement('div');
+            techniqueDiv.className = 'technique';
+            techniqueDiv.innerHTML = `
+                <div class="technique-name" data-technique="${technique.name}">
+                    ${technique.code} - ${technique.name}
+                </div>
+            `;
+            techniqueDiv.addEventListener('click', () => showTechniqueInfo(technique.name));
+            techniquesContainer.appendChild(techniqueDiv);
+        });
+
+        // Formları sırala ve göster
+        const forms = matrixData.forms.map(name => {
+            const code = matrixData.formNumbers[name] || '';
+            return { name, code };
+        }).sort((a, b) => a.code.localeCompare(b.code));
+
+        forms.forEach(form => {
+            const formDiv = document.createElement('div');
+            formDiv.className = 'form';
+            formDiv.innerHTML = `
+                <div class="form-name" data-form="${form.name}">
+                    ${form.code} - ${form.name}
+                </div>
+            `;
+            formDiv.addEventListener('click', () => showFormInfo(form.name));
+            formsContainer.appendChild(formDiv);
+        });
+
+        // İlişkileri gösterirken de kodları ekle
+        function showMaterialInfo(materialName) {
+            const materialCode = matrixData.materialNumbers[materialName] || '';
+            const material = materials.find(m => m.name === materialName);
+            if (!material) return;
+
+            const relatedTechniques = matrixData.relationships
+                .filter(rel => rel.material === materialName)
+                .map(rel => {
+                    const techCode = matrixData.techniqueNumbers[rel.technique] || '';
+                    return `${techCode} - ${rel.technique}`;
+                })
+                .sort();
+
+            const relatedForms = matrixData.relationships
+                .filter(rel => rel.material === materialName)
+                .map(rel => {
+                    const formCode = matrixData.formNumbers[rel.form] || '';
+                    return `${formCode} - ${rel.form}`;
+                })
+                .sort();
+
+            showInfoPopup(`${materialCode} - ${materialName}`, relatedTechniques, relatedForms);
+        }
+
+        function showTechniqueInfo(techniqueName) {
+            const techniqueCode = matrixData.techniqueNumbers[techniqueName] || '';
+            const technique = techniques.find(t => t.name === techniqueName);
+            if (!technique) return;
+
+            const relatedMaterials = matrixData.relationships
+                .filter(rel => rel.technique === techniqueName)
+                .map(rel => {
+                    const matCode = matrixData.materialNumbers[rel.material] || '';
+                    return `${matCode} - ${rel.material}`;
+                })
+                .sort();
+
+            const relatedForms = matrixData.relationships
+                .filter(rel => rel.technique === techniqueName)
+                .map(rel => {
+                    const formCode = matrixData.formNumbers[rel.form] || '';
+                    return `${formCode} - ${rel.form}`;
+                })
+                .sort();
+
+            showInfoPopup(`${techniqueCode} - ${techniqueName}`, relatedMaterials, relatedForms);
+        }
+
+        function showFormInfo(formName) {
+            const formCode = matrixData.formNumbers[formName] || '';
+            const form = forms.find(f => f.name === formName);
+            if (!form) return;
+
+            const relatedMaterials = matrixData.relationships
+                .filter(rel => rel.form === formName)
+                .map(rel => {
+                    const matCode = matrixData.materialNumbers[rel.material] || '';
+                    return `${matCode} - ${rel.material}`;
+                })
+                .sort();
+
+            const relatedTechniques = matrixData.relationships
+                .filter(rel => rel.form === formName)
+                .map(rel => {
+                    const techCode = matrixData.techniqueNumbers[rel.technique] || '';
+                    return `${techCode} - ${rel.technique}`;
+                })
+                .sort();
+
+            showInfoPopup(`${formCode} - ${formName}`, relatedMaterials, relatedTechniques);
+        }
     </script>
 </body>
 </html> 
