@@ -389,8 +389,8 @@ public class ExcelService {
                     // Teknik adlarını ve özelliklerini tutacak map
                     Map<String, Set<String>> techniqueFeatures = new HashMap<>();
                     
-                    // J5'ten başlayarak teknik isimlerini ve E5'ten başlayarak özellikleri oku
-                    for (int i = 4; i <= techniqueSheet.getLastRowNum(); i++) {
+                    // J4'ten başlayarak teknik isimlerini ve J4'ten başlayarak özellikleri oku
+                    for (int i = 3; i <= techniqueSheet.getLastRowNum(); i++) {
                         Row row = techniqueSheet.getRow(i);
                         if (row == null) {
                             logger.debug("Row {} is null", i + 1);
@@ -399,7 +399,7 @@ public class ExcelService {
                         
                         Cell nameCell = row.getCell(7); // H kolonu (Teknik adı - Türkçe)
                         Cell codeCell = row.getCell(6); // G kolonu
-                        Cell featureCell = row.getCell(4); // E kolonu (PROCESSES - İngilizce)
+                        Cell featureCell = row.getCell(9); // J kolonu (Özellikler)
                         
                         logger.debug("Processing row {}: Technique name cell: {}, Feature cell: {}", 
                             i + 1, nameCell != null ? nameCell.getCellType() : "null", 
@@ -415,7 +415,7 @@ public class ExcelService {
                                     String feature = getCellValueAsString(featureCell);
                                     logger.info("Row {}: Reading feature for '{}': '{}'", i + 1, techniqueName, feature);
                                     
-                                    if (!feature.isEmpty() && !feature.equals("PROCESSES")) {
+                                    if (!feature.isEmpty() && !feature.equals("Özellikler")) {
                                         // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
                                         String[] features = feature.split(",");
                                         for (String f : features) {
@@ -443,7 +443,7 @@ public class ExcelService {
                     });
                     
                     // Şimdi teknik detaylarını oluştur
-                    for (int i = 4; i <= techniqueSheet.getLastRowNum(); i++) {
+                    for (int i = 3; i <= techniqueSheet.getLastRowNum(); i++) {
                         Row row = techniqueSheet.getRow(i);
                         if (row == null) continue;
                         
