@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,8 @@ public class ExcelController {
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
     @GetMapping("/")
     public String intro1() {
@@ -116,92 +120,35 @@ public class ExcelController {
     public ResponseEntity<List<String>> listIcons(@RequestParam String type, @RequestParam String number) {
         try {
             System.out.println("Received type: " + type); // Debug log
-            String referansPath;
+            String pattern;
             
             switch(type.toLowerCase()) {
                 case "form":
-                    referansPath = "classpath:static/icons/Form icon/" + number + "/Referans/";
+                    pattern = "classpath:static/icons/Form icon/" + number + "/Referans/*.{png,jpg,jpeg}";
                     break;
                 case "technique":
-                    referansPath = "classpath:static/icons/Teknikler icon/" + number + "/Referans/";
+                    pattern = "classpath:static/icons/Teknikler icon/" + number + "/Referans/*.{png,jpg,jpeg}";
                     break;
                 case "material":
-                    referansPath = "classpath:static/icons/Malzeme icon/" + number + "/Referans/";
+                    pattern = "classpath:static/icons/Malzeme icon/" + number + "/Referans/*.{png,jpg,jpeg}";
                     break;
                 default:
-                    referansPath = "classpath:static/icons/" + type + " icon/" + number + "/Referans/";
+                    pattern = "classpath:static/icons/" + type + " icon/" + number + "/Referans/*.{png,jpg,jpeg}";
             }
             
-            System.out.println("Looking for directory: " + referansPath); // Debug log
-            Resource resource = resourceLoader.getResource(referansPath);
+            System.out.println("Looking for pattern: " + pattern); // Debug log
+            
+            Resource[] resources = resourcePatternResolver.getResources(pattern);
             List<String> iconNames = new ArrayList<>();
             
-            if (!resource.exists()) {
-                System.out.println("Resource does not exist: " + referansPath);
-                return ResponseEntity.ok(iconNames);
-            }
-
-            try {
-                URL url = resource.getURL();
-                System.out.println("Resource URL: " + url);
-                
-                if (url.getProtocol().equals("jar")) {
-                    // Handle JAR resources
-                    String jarPath = url.getPath();
-                    System.out.println("JAR path: " + jarPath);
-                    
-                    // Extract the path inside the JAR
-                    String pathInJar = jarPath.substring(jarPath.indexOf("!") + 1);
-                    System.out.println("Path in JAR: " + pathInJar);
-                    
-                    // Get the JAR file
-                    String jarFile = jarPath.substring(5, jarPath.indexOf("!"));
-                    System.out.println("JAR file: " + jarFile);
-                    
-                    try (JarFile jar = new JarFile(jarFile)) {
-                        // List all entries in the JAR
-                        Enumeration<JarEntry> entries = jar.entries();
-                        while (entries.hasMoreElements()) {
-                            JarEntry entry = entries.nextElement();
-                            String name = entry.getName();
-                            
-                            // Check if the entry is in our target directory and is an image
-                            if (name.startsWith(pathInJar.substring(1)) && 
-                                (name.toLowerCase().endsWith(".png") || 
-                                 name.toLowerCase().endsWith(".jpg") || 
-                                 name.toLowerCase().endsWith(".jpeg"))) {
-                                
-                                // Extract just the filename
-                                String fileName = name.substring(name.lastIndexOf("/") + 1);
-                                System.out.println("Found image in JAR: " + fileName);
-                                iconNames.add(fileName);
-                            }
-                        }
-                    }
-                } else {
-                    // Handle filesystem resources
-                    File directory = resource.getFile();
-                    if (!directory.isDirectory()) {
-                        System.out.println("Path is not a directory: " + directory.getAbsolutePath());
-                        return ResponseEntity.ok(iconNames);
-                    }
-                    
-                    File[] files = directory.listFiles((dir, name) -> {
-                        String lowerName = name.toLowerCase();
-                        return lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
-                    });
-                    
-                    if (files != null) {
-                        for (File file : files) {
-                            if (file.canRead()) {
-                                iconNames.add(file.getName());
-                            }
-                        }
-                    }
+            System.out.println("Found " + resources.length + " resources");
+            
+            for (Resource resource : resources) {
+                String filename = resource.getFilename();
+                if (filename != null) {
+                    System.out.println("Found resource: " + filename);
+                    iconNames.add(filename);
                 }
-            } catch (IOException e) {
-                System.err.println("Error accessing resource: " + e.getMessage());
-                e.printStackTrace();
             }
             
             return ResponseEntity.ok(iconNames);
