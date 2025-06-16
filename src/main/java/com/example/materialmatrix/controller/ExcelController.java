@@ -81,6 +81,9 @@ public class ExcelController {
     @GetMapping("/checkIcon")
     public ResponseEntity<Boolean> checkIcon(@RequestParam String type, @RequestParam String number) {
         String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
+        if (type.equalsIgnoreCase("form")) {
+            referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+        }
         File directory = new File(referansPath);
         if (directory.exists() && directory.isDirectory()) {
             File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
@@ -93,6 +96,9 @@ public class ExcelController {
     public ResponseEntity<List<String>> listIcons(@RequestParam String type, @RequestParam String number) {
         try {
             String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
+            if (type.equalsIgnoreCase("form")) {
+                referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+            }
             File directory = new File(referansPath);
             List<String> iconNames = new ArrayList<>();
             
