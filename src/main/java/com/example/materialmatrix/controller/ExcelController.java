@@ -15,16 +15,17 @@ import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 @Controller
 public class ExcelController {
@@ -133,66 +134,74 @@ public class ExcelController {
             
             System.out.println("Looking for directory: " + referansPath); // Debug log
             Resource resource = resourceLoader.getResource(referansPath);
-            File directory = resource.getFile();
             List<String> iconNames = new ArrayList<>();
             
-            if (!directory.exists()) {
-                System.out.println("Directory does not exist: " + directory.getAbsolutePath());
-                return ResponseEntity.ok(iconNames);
-            }
-            
-            if (!directory.isDirectory()) {
-                System.out.println("Path is not a directory: " + directory.getAbsolutePath());
+            if (!resource.exists()) {
+                System.out.println("Resource does not exist: " + referansPath);
                 return ResponseEntity.ok(iconNames);
             }
 
-            // Add detailed directory information
-            System.out.println("Directory exists and is a directory");
-            System.out.println("Directory absolute path: " + directory.getAbsolutePath());
-            System.out.println("Directory can read: " + directory.canRead());
-            System.out.println("Directory permissions: " + directory.getAbsolutePath() + " - " + 
-                             (directory.canRead() ? "r" : "-") +
-                             (directory.canWrite() ? "w" : "-") +
-                             (directory.canExecute() ? "x" : "-"));
-            
-            File[] files = directory.listFiles((dir, name) -> {
-                String lowerName = name.toLowerCase();
-                boolean isImage = lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
-                if (isImage) {
-                    System.out.println("Found image file: " + name);
-                }
-                return isImage;
-            });
-            
-            if (files != null) {
-                System.out.println("Number of files found: " + files.length);
-                for (File file : files) {
-                    if (file.canRead()) {
-                        System.out.println("Adding file to list: " + file.getName() + 
-                                         " (can read: " + file.canRead() + 
-                                         ", size: " + file.length() + " bytes)");
-                        iconNames.add(file.getName());
-                    } else {
-                        System.out.println("Cannot read file: " + file.getAbsolutePath() + 
-                                         " (permissions: " + 
-                                         (file.canRead() ? "r" : "-") +
-                                         (file.canWrite() ? "w" : "-") +
-                                         (file.canExecute() ? "x" : "-") + ")");
+            try {
+                URL url = resource.getURL();
+                System.out.println("Resource URL: " + url);
+                
+                if (url.getProtocol().equals("jar")) {
+                    // Handle JAR resources
+                    String jarPath = url.getPath();
+                    System.out.println("JAR path: " + jarPath);
+                    
+                    // Extract the path inside the JAR
+                    String pathInJar = jarPath.substring(jarPath.indexOf("!") + 1);
+                    System.out.println("Path in JAR: " + pathInJar);
+                    
+                    // Get the JAR file
+                    String jarFile = jarPath.substring(5, jarPath.indexOf("!"));
+                    System.out.println("JAR file: " + jarFile);
+                    
+                    try (JarFile jar = new JarFile(jarFile)) {
+                        // List all entries in the JAR
+                        Enumeration<JarEntry> entries = jar.entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry entry = entries.nextElement();
+                            String name = entry.getName();
+                            
+                            // Check if the entry is in our target directory and is an image
+                            if (name.startsWith(pathInJar.substring(1)) && 
+                                (name.toLowerCase().endsWith(".png") || 
+                                 name.toLowerCase().endsWith(".jpg") || 
+                                 name.toLowerCase().endsWith(".jpeg"))) {
+                                
+                                // Extract just the filename
+                                String fileName = name.substring(name.lastIndexOf("/") + 1);
+                                System.out.println("Found image in JAR: " + fileName);
+                                iconNames.add(fileName);
+                            }
+                        }
+                    }
+                } else {
+                    // Handle filesystem resources
+                    File directory = resource.getFile();
+                    if (!directory.isDirectory()) {
+                        System.out.println("Path is not a directory: " + directory.getAbsolutePath());
+                        return ResponseEntity.ok(iconNames);
+                    }
+                    
+                    File[] files = directory.listFiles((dir, name) -> {
+                        String lowerName = name.toLowerCase();
+                        return lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
+                    });
+                    
+                    if (files != null) {
+                        for (File file : files) {
+                            if (file.canRead()) {
+                                iconNames.add(file.getName());
+                            }
+                        }
                     }
                 }
-            } else {
-                System.out.println("No files found in directory: " + directory.getAbsolutePath());
-                // List all files in directory to help debug
-                File[] allFiles = directory.listFiles();
-                if (allFiles != null) {
-                    System.out.println("Directory contents:");
-                    for (File f : allFiles) {
-                        System.out.println("- " + f.getName() + 
-                                         " (is file: " + f.isFile() + 
-                                         ", can read: " + f.canRead() + 
-                                         ", size: " + f.length() + " bytes)");
-                    }
-                }
+            } catch (IOException e) {
+                System.err.println("Error accessing resource: " + e.getMessage());
+                e.printStackTrace();
             }
             
             return ResponseEntity.ok(iconNames);
