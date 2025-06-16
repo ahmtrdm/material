@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +31,9 @@ public class ExcelController {
 
     @Autowired
     private ExcelService excelService;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @GetMapping("/")
     public String intro1() {
@@ -114,20 +119,21 @@ public class ExcelController {
             
             switch(type.toLowerCase()) {
                 case "form":
-                    referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+                    referansPath = "classpath:static/icons/Form icon/" + number + "/Referans/";
                     break;
                 case "technique":
-                    referansPath = "src/main/resources/static/icons/Teknikler icon/" + number + "/Referans/";
+                    referansPath = "classpath:static/icons/Teknikler icon/" + number + "/Referans/";
                     break;
                 case "material":
-                    referansPath = "src/main/resources/static/icons/Malzeme icon/" + number + "/Referans/";
+                    referansPath = "classpath:static/icons/Malzeme icon/" + number + "/Referans/";
                     break;
                 default:
-                    referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
+                    referansPath = "classpath:static/icons/" + type + " icon/" + number + "/Referans/";
             }
             
             System.out.println("Looking for directory: " + referansPath); // Debug log
-            File directory = new File(referansPath);
+            Resource resource = resourceLoader.getResource(referansPath);
+            File directory = resource.getFile();
             List<String> iconNames = new ArrayList<>();
             
             if (!directory.exists()) {
@@ -139,22 +145,54 @@ public class ExcelController {
                 System.out.println("Path is not a directory: " + directory.getAbsolutePath());
                 return ResponseEntity.ok(iconNames);
             }
+
+            // Add detailed directory information
+            System.out.println("Directory exists and is a directory");
+            System.out.println("Directory absolute path: " + directory.getAbsolutePath());
+            System.out.println("Directory can read: " + directory.canRead());
+            System.out.println("Directory permissions: " + directory.getAbsolutePath() + " - " + 
+                             (directory.canRead() ? "r" : "-") +
+                             (directory.canWrite() ? "w" : "-") +
+                             (directory.canExecute() ? "x" : "-"));
             
             File[] files = directory.listFiles((dir, name) -> {
                 String lowerName = name.toLowerCase();
-                return lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
+                boolean isImage = lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
+                if (isImage) {
+                    System.out.println("Found image file: " + name);
+                }
+                return isImage;
             });
             
             if (files != null) {
+                System.out.println("Number of files found: " + files.length);
                 for (File file : files) {
                     if (file.canRead()) {
+                        System.out.println("Adding file to list: " + file.getName() + 
+                                         " (can read: " + file.canRead() + 
+                                         ", size: " + file.length() + " bytes)");
                         iconNames.add(file.getName());
                     } else {
-                        System.out.println("Cannot read file: " + file.getAbsolutePath());
+                        System.out.println("Cannot read file: " + file.getAbsolutePath() + 
+                                         " (permissions: " + 
+                                         (file.canRead() ? "r" : "-") +
+                                         (file.canWrite() ? "w" : "-") +
+                                         (file.canExecute() ? "x" : "-") + ")");
                     }
                 }
             } else {
                 System.out.println("No files found in directory: " + directory.getAbsolutePath());
+                // List all files in directory to help debug
+                File[] allFiles = directory.listFiles();
+                if (allFiles != null) {
+                    System.out.println("Directory contents:");
+                    for (File f : allFiles) {
+                        System.out.println("- " + f.getName() + 
+                                         " (is file: " + f.isFile() + 
+                                         ", can read: " + f.canRead() + 
+                                         ", size: " + f.length() + " bytes)");
+                    }
+                }
             }
             
             return ResponseEntity.ok(iconNames);
