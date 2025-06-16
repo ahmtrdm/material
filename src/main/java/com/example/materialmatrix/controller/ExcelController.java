@@ -80,10 +80,13 @@ public class ExcelController {
 
     @GetMapping("/checkIcon")
     public ResponseEntity<Boolean> checkIcon(@RequestParam String type, @RequestParam String number) {
+        System.out.println("Received type: " + type); // Debug log
         String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
-        if (type.equalsIgnoreCase("form")) {
+        // Linux için dosya yolunu düzelt
+        if (type.equalsIgnoreCase("form") || type.equalsIgnoreCase("Form")) {
             referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
         }
+        System.out.println("Looking for directory: " + referansPath); // Debug log
         File directory = new File(referansPath);
         if (directory.exists() && directory.isDirectory()) {
             File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
@@ -95,10 +98,13 @@ public class ExcelController {
     @GetMapping("/listIcons")
     public ResponseEntity<List<String>> listIcons(@RequestParam String type, @RequestParam String number) {
         try {
+            System.out.println("Received type: " + type); // Debug log
             String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
-            if (type.equalsIgnoreCase("form")) {
+            // Linux için dosya yolunu düzelt
+            if (type.equalsIgnoreCase("form") || type.equalsIgnoreCase("Form")) {
                 referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
             }
+            System.out.println("Looking for directory: " + referansPath); // Debug log
             File directory = new File(referansPath);
             List<String> iconNames = new ArrayList<>();
             

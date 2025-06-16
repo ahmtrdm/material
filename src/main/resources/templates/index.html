@@ -824,7 +824,7 @@
                         .then(iconNames => {
                             let iconContent = '';
                             iconNames.forEach(iconName => {
-                                const iconPath = `/icons/${type} icon/${number}/Referans/${iconName}`;
+                                const iconPath = `/icons/${type} icon/${number}/Referans/${encodeURIComponent(iconName)}`;
                                 iconContent += `
                                     <div class="icon-container">
                                         <img src="${iconPath}" 
