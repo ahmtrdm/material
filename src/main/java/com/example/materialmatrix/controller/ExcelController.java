@@ -81,11 +81,22 @@ public class ExcelController {
     @GetMapping("/checkIcon")
     public ResponseEntity<Boolean> checkIcon(@RequestParam String type, @RequestParam String number) {
         System.out.println("Received type: " + type); // Debug log
-        String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
-        // Linux için dosya yolunu düzelt
-        if (type.equalsIgnoreCase("form") || type.equalsIgnoreCase("Form")) {
-            referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+        String referansPath;
+        
+        switch(type.toLowerCase()) {
+            case "form":
+                referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+                break;
+            case "technique":
+                referansPath = "src/main/resources/static/icons/Teknikler icon/" + number + "/Referans/";
+                break;
+            case "material":
+                referansPath = "src/main/resources/static/icons/Malzeme icon/" + number + "/Referans/";
+                break;
+            default:
+                referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
         }
+        
         System.out.println("Looking for directory: " + referansPath); // Debug log
         File directory = new File(referansPath);
         if (directory.exists() && directory.isDirectory()) {
@@ -99,11 +110,22 @@ public class ExcelController {
     public ResponseEntity<List<String>> listIcons(@RequestParam String type, @RequestParam String number) {
         try {
             System.out.println("Received type: " + type); // Debug log
-            String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
-            // Linux için dosya yolunu düzelt
-            if (type.equalsIgnoreCase("form") || type.equalsIgnoreCase("Form")) {
-                referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+            String referansPath;
+            
+            switch(type.toLowerCase()) {
+                case "form":
+                    referansPath = "src/main/resources/static/icons/Form icon/" + number + "/Referans/";
+                    break;
+                case "technique":
+                    referansPath = "src/main/resources/static/icons/Teknikler icon/" + number + "/Referans/";
+                    break;
+                case "material":
+                    referansPath = "src/main/resources/static/icons/Malzeme icon/" + number + "/Referans/";
+                    break;
+                default:
+                    referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
             }
+            
             System.out.println("Looking for directory: " + referansPath); // Debug log
             File directory = new File(referansPath);
             List<String> iconNames = new ArrayList<>();
