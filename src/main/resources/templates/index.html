@@ -825,7 +825,13 @@
                             let iconContent = '';
                             iconNames.forEach(iconName => {
                                 const iconPath = `/icons/${type} icon/${number}/Referans/${iconName}`;
-                                iconContent += `<img src="${iconPath}" alt="${name} icon" style="width: 85px; height: 85px; margin: 5px;">`;
+                                iconContent += `
+                                    <div class="icon-container">
+                                        <img src="${iconPath}" 
+                                             alt="${name} icon" 
+                                             style="width: 85px; height: 85px; margin: 5px;"
+                                             onerror="this.onerror=null; this.src='/images/placeholder.png'; console.error('Failed to load image:', '${iconPath}');">
+                                    </div>`;
                             });
                             
                             let featuresContent = '';
@@ -838,41 +844,15 @@
                                 `;
                             }
                             
-                            switch(type) {
-                                case 'material':
-                                    content = `
-                                        <h3>${name}</h3>
-                                        <p>Malzeme Kodu: ${number}</p>
-                                        <div class="info-details">
-                                            <p>${description}</p>
-                                            ${featuresContent}
-                                            ${iconContent ? `<div class="icons">${iconContent}</div>` : ''}
-                                        </div>
-                                    `;
-                                    break;
-                                case 'technique':
-                                    content = `
-                                        <h3>${name}</h3>
-                                        <p>Teknik Kodu: ${number}</p>
-                                        <div class="info-details">
-                                            <p>${description}</p>
-                                            ${featuresContent}
-                                            ${iconContent ? `<div class="icons">${iconContent}</div>` : ''}
-                                        </div>
-                                    `;
-                                    break;
-                                case 'form':
-                                    content = `
-                                        <h3>${name}</h3>
-                                        <p>Form Kodu: ${number}</p>
-                                        <div class="info-details">
-                                            <p>${description}</p>
-                                            ${featuresContent}
-                                            ${iconContent ? `<div class="icons">${iconContent}</div>` : ''}
-                                        </div>
-                                    `;
-                                    break;
-                            }
+                            content = `
+                                <h3>${name}</h3>
+                                <p>Form Kodu: ${number}</p>
+                                <div class="info-details">
+                                    <p>${description}</p>
+                                    ${featuresContent}
+                                    ${iconContent ? `<div class="icons-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; margin-top: 15px;">${iconContent}</div>` : ''}
+                                </div>
+                            `;
                             
                             popupInfo.innerHTML = content;
                             popupOverlay.style.display = 'flex';

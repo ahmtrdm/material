@@ -91,18 +91,44 @@ public class ExcelController {
 
     @GetMapping("/listIcons")
     public ResponseEntity<List<String>> listIcons(@RequestParam String type, @RequestParam String number) {
-        String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
-        File directory = new File(referansPath);
-        List<String> iconNames = new ArrayList<>();
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
+        try {
+            String referansPath = "src/main/resources/static/icons/" + type + " icon/" + number + "/Referans/";
+            File directory = new File(referansPath);
+            List<String> iconNames = new ArrayList<>();
+            
+            if (!directory.exists()) {
+                System.out.println("Directory does not exist: " + directory.getAbsolutePath());
+                return ResponseEntity.ok(iconNames);
+            }
+            
+            if (!directory.isDirectory()) {
+                System.out.println("Path is not a directory: " + directory.getAbsolutePath());
+                return ResponseEntity.ok(iconNames);
+            }
+            
+            File[] files = directory.listFiles((dir, name) -> {
+                String lowerName = name.toLowerCase();
+                return lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
+            });
+            
             if (files != null) {
                 for (File file : files) {
-                    iconNames.add(file.getName());
+                    if (file.canRead()) {
+                        iconNames.add(file.getName());
+                    } else {
+                        System.out.println("Cannot read file: " + file.getAbsolutePath());
+                    }
                 }
+            } else {
+                System.out.println("No files found in directory: " + directory.getAbsolutePath());
             }
+            
+            return ResponseEntity.ok(iconNames);
+        } catch (Exception e) {
+            System.err.println("Error in listIcons: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.ok(new ArrayList<>());
         }
-        return ResponseEntity.ok(iconNames);
     }
 
     @GetMapping("/getFeatures")
