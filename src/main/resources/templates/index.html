@@ -380,9 +380,9 @@
                                         </p>
                                     </div>
                                     <img th:if="${material.id}" 
-                                         th:src="@{'/icons/Malzeme icon/' + ${material.id} + '/Referans/' + ${material.id} + '.jpg'}"
+                                         th:src="@{'/icons/Malzeme icon/' + ${material.id} + '/' + ${material.id} + '.jpg'}"
                                          class="material-icon" 
-                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '/Referans/' + ${material.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '/Referans/' + ${material.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '/Referans/' + ${material.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
+                                         th:onerror="this.src=@{'/icons/Malzeme icon/' + ${material.id} + '/' + ${material.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '/' + ${material.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Malzeme icon/' + ${material.id} + '/' + ${material.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="material-name" th:text="${material.id + ' - ' + material.name}"></span>
                                 </div>
