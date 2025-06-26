@@ -203,6 +203,8 @@
             position: relative;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 2;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .popup-close {
             position: absolute;
@@ -417,9 +419,9 @@
                                         </p>
                                     </div>
                                     <img th:if="${technique.id}" 
-                                         th:src="@{'/icons/Teknikler icon/' + ${technique.id} + '.jpg'}"
+                                         th:src="@{'/icons/Teknikler icon/' + ${technique.id} + '/' + ${technique.id} + '.jpg'}"
                                          class="technique-icon" 
-                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
+                                         th:onerror="this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '/' + ${technique.id} + '.JPG'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '/' + ${technique.id} + '.png'}; this.onerror=function(){this.src=@{'/icons/Teknikler icon/' + ${technique.id} + '/' + ${technique.id} + '.PNG'}; this.onerror=function(){this.style.display='none'}}}"
                                          onerror="this.onerror=null; this.style.display='none'">
                                     <span class="technique-name" th:text="${technique.id + ' - ' + technique.name}"></span>
                                 </div>
@@ -817,7 +819,10 @@
             // Fetch features from the server
             fetch(`/getFeatures?type=${type}&number=${number}`)
                 .then(response => response.json())
-                .then(features => {
+                .then(data => {
+                    const features = data.features || [];
+                    const featureHeader = data.featureHeader || 'Özellikler';
+                    const featureGroups = data.featureGroups || null;
                     // Fetch icon names from the server
                     return fetch(`/listIcons?type=${type}&number=${number}`)
                         .then(response => response.json())
@@ -835,18 +840,25 @@
                             });
                             
                             let featuresContent = '';
-                            if (features && features.length > 0) {
+                            if (featureGroups && Object.keys(featureGroups).length > 0) {
+                                featuresContent = Object.entries(featureGroups).map(([header, feats]) => {
+                                    if (!feats || feats.length === 0) return '';
+                                    return `<div class="features"><h4>${header}:</h4><p>${Array.from(feats).join(', ')}</p></div>`;
+                                }).join('');
+                            } else if (features && features.length > 0) {
                                 featuresContent = `
                                     <div class="features">
-                                        <h4>Özellikler:</h4>
+                                        <h4>${featureHeader}:</h4>
                                         <p>${Array.from(features).join(', ')}</p>
                                     </div>
                                 `;
                             }
                             
+                            const typeLabel = type === 'material' ? 'Malzeme' : type === 'technique' ? 'Teknik' : 'Form';
+                            
                             content = `
                                 <h3>${name}</h3>
-                                <p>Form Kodu: ${number}</p>
+                                <p>${typeLabel} Kodu: ${number}</p>
                                 <div class="info-details">
                                     <p>${description}</p>
                                     ${featuresContent}

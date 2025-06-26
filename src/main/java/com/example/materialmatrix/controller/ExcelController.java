@@ -110,7 +110,10 @@ public class ExcelController {
         System.out.println("Looking for directory: " + referansPath); // Debug log
         File directory = new File(referansPath);
         if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
+            File[] files = directory.listFiles((dir, name) -> 
+                name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".PNG") ||
+                name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".JPG") ||
+                name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".JPEG"));
             return ResponseEntity.ok(files != null && files.length > 0);
         }
         return ResponseEntity.ok(false);
@@ -124,16 +127,16 @@ public class ExcelController {
             
             switch(type.toLowerCase()) {
                 case "form":
-                    pattern = "classpath:static/icons/Form icon/" + number + "/Referans/*.{png,jpg,jpeg}";
+                    pattern = "classpath:static/icons/Form icon/" + number + "/Referans/*.{png,PNG,jpg,JPG,jpeg,JPEG}";
                     break;
                 case "technique":
-                    pattern = "classpath:static/icons/Teknikler icon/" + number + "/Referans/*.{png,jpg,jpeg}";
+                    pattern = "classpath:static/icons/Teknikler icon/" + number + "/Referans/*.{png,PNG,jpg,JPG,jpeg,JPEG}";
                     break;
                 case "material":
-                    pattern = "classpath:static/icons/Malzeme icon/" + number + "/Referans/*.{png,jpg,jpeg}";
+                    pattern = "classpath:static/icons/Malzeme icon/" + number + "/Referans/*.{png,PNG,jpg,JPG,jpeg,JPEG}";
                     break;
                 default:
-                    pattern = "classpath:static/icons/" + type + " icon/" + number + "/Referans/*.{png,jpg,jpeg}";
+                    pattern = "classpath:static/icons/" + type + " icon/" + number + "/Referans/*.{png,PNG,jpg,JPG,jpeg,JPEG}";
             }
             
             System.out.println("Looking for pattern: " + pattern); // Debug log
@@ -160,21 +163,23 @@ public class ExcelController {
     }
 
     @GetMapping("/getFeatures")
-    public ResponseEntity<Set<String>> getFeatures(@RequestParam String type, @RequestParam String number) {
-        Set<String> features = new HashSet<>();
-        
+    public ResponseEntity<Map<String, Object>> getFeatures(@RequestParam String type, @RequestParam String number) {
+        Map<String, Object> result = new java.util.HashMap<>();
         switch(type) {
             case "material":
-                features = excelService.getMaterialFeatures(number);
+                result.put("features", excelService.getMaterialFeatures(number));
+                result.put("featureHeader", excelService.getMaterialFeatureHeader());
+                result.put("featureGroups", excelService.getMaterialFeatureGroups(number));
                 break;
             case "technique":
-                features = excelService.getTechniqueFeatures(number);
+                result.put("features", excelService.getTechniqueFeatures(number));
+                result.put("featureGroups", excelService.getTechniqueFeatureGroups(number));
                 break;
             case "form":
-                features = excelService.getFormFeatures(number);
+                result.put("features", excelService.getFormFeatures(number));
+                result.put("featureGroups", excelService.getFormFeatureGroups(number));
                 break;
         }
-        
-        return ResponseEntity.ok(features);
+        return ResponseEntity.ok(result);
     }
 } 
