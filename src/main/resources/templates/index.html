@@ -165,16 +165,22 @@
             margin-bottom: 30px;
         }
         .start-selection .btn {
-            background-color: #4a90e2;
-            border-color: #4a90e2;
+            background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+            border: none;
             color: white;
             margin: 0 10px;
-            padding: 10px 30px;
+            padding: 12px 36px;
             font-size: 1.2em;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);
+            transition: all 0.3s cubic-bezier(.4,2,.3,1);
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
         .start-selection .btn:hover {
-            background-color: #357abd;
-            border-color: #357abd;
+            background: linear-gradient(90deg, #357abd 0%, #4a90e2 100%);
+            box-shadow: 0 4px 16px rgba(53, 122, 189, 0.18);
+            transform: translateY(-2px) scale(1.04);
         }
         .reset-button {
             position: fixed;
@@ -198,7 +204,7 @@
             background-color: white;
             padding: 20px;
             border-radius: 10px;
-            max-width: 500px;
+            max-width: 625px;
             width: 90%;
             position: relative;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
