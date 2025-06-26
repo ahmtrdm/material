@@ -27,6 +27,16 @@ public class ExcelService {
     private Map<String, Set<String>> materialFeatures = new HashMap<>();
     private Map<String, Set<String>> techniqueFeatures = new HashMap<>();
     private Map<String, Set<String>> formFeatures = new HashMap<>();
+    private String materialFeatureHeader = "Özellikler";
+
+    // Birden fazla başlık ve özellik için
+    private Map<String, Map<String, Set<String>>> materialFeatureGroups = new HashMap<>();
+
+    // Form için de çoklu başlık ve özellik desteği
+    private Map<String, Map<String, Set<String>>> formFeatureGroups = new HashMap<>();
+
+    // Teknik için de çoklu başlık ve özellik desteği
+    private Map<String, Map<String, Set<String>>> techniqueFeatureGroups = new HashMap<>();
 
     public Map<String, Object> readExcelFiles() {
         Map<String, Object> result = new HashMap<>();
@@ -217,54 +227,38 @@ public class ExcelService {
                     
                     // Malzeme adlarını ve özelliklerini tutacak map
                     Map<String, Set<String>> materialFeatures = new HashMap<>();
-                    
-                    // J5'ten başlayarak malzeme isimlerini ve L5'ten başlayarak özellikleri oku
-                    for (int i = 4; i <= materialSheet.getLastRowNum(); i++) {
-                        Row row = materialSheet.getRow(i);
-                        if (row == null) {
-                            logger.debug("Row {} is null", i + 1);
-                            continue;
+                    // Çoklu başlık ve özellikler için
+                    int[] featureCols = {11, 12, 13, 14}; // L, M, N, O
+                    Row headerRow = materialSheet.getRow(2);
+                    Map<Integer, String> featureHeaders = new HashMap<>();
+                    for (int col : featureCols) {
+                        if (headerRow != null && headerRow.getCell(col) != null) {
+                            featureHeaders.put(col, getCellValueAsString(headerRow.getCell(col)));
                         }
-                        
-                        Cell materialNameCell = row.getCell(9); // J kolonu
-                        Cell materialCodeCell = row.getCell(8); // I kolonu
-                        Cell featureCell = row.getCell(11); // L kolonu
-                        
-                        logger.debug("Processing row {}: Material cell: {}, Feature cell: {}", 
-                            i + 1, materialNameCell != null ? materialNameCell.getCellType() : "null", 
-                            featureCell != null ? featureCell.getCellType() : "null");
-                        
-                        if (materialNameCell != null) {
-                            String materialName = getCellValueAsString(materialNameCell);
-                            String materialCode = materialCodeCell != null ? getCellValueAsString(materialCodeCell) : "";
-                            logger.info("Row {}: Reading material name: '{}' with code: '{}'", i + 1, materialName, materialCode);
-                            
-                            if (!materialName.isEmpty() && !materialName.equals("Malzemeler") && !materialName.equals("Malzeme Kataloğu")) {
-                                // Malzeme adını özellik olarak ekle
-                                materialFeatures.computeIfAbsent(materialName, k -> new LinkedHashSet<>()).add(materialName);
-                                if (!materialCode.isEmpty()) {
-                                    this.materialFeatures.computeIfAbsent(materialCode, k -> new LinkedHashSet<>()).add(materialName);
-                                }
-                                logger.info("Added material name '{}' as feature for code '{}'", materialName, materialCode);
-                                
-                                // Eğer özellik hücresi varsa, onu da ekle
-                                if (featureCell != null) {
-                                    String feature = getCellValueAsString(featureCell);
-                                    logger.info("Row {}: Reading feature for '{}': '{}'", i + 1, materialName, feature);
-                                    
-                                    if (!feature.isEmpty() && !feature.equals("Özellikler")) {
-                                        // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
-                                        String[] features = feature.split(",");
-                                        for (String f : features) {
-                                            f = f.trim();
-                                            if (!f.isEmpty()) {
-                                                // Aynı malzeme koduna sahip tüm özellikleri topla
-                                                materialFeatures.computeIfAbsent(materialName, k -> new LinkedHashSet<>()).add(f);
-                                                if (!materialCode.isEmpty()) {
-                                                    this.materialFeatures.computeIfAbsent(materialCode, k -> new LinkedHashSet<>()).add(f);
-                                                }
-                                                logger.info("Added feature '{}' to material '{}' with code '{}'", f, materialName, materialCode);
-                                            }
+                    }
+                    // Her malzeme kodu için başlık-özellik map'i oluştur
+                    for (int i = 3; i <= materialSheet.getLastRowNum(); i++) {
+                        Row row = materialSheet.getRow(i);
+                        if (row == null) continue;
+                        Cell materialNameCell = row.getCell(9); // J
+                        Cell materialCodeCell = row.getCell(8); // I
+                        String materialName = materialNameCell != null ? getCellValueAsString(materialNameCell) : "";
+                        String materialCode = materialCodeCell != null ? getCellValueAsString(materialCodeCell) : "";
+                        if (materialName.isEmpty() || materialName.equals("Malzemeler") || materialName.equals("Malzeme Kataloğu")) continue;
+                        String key = !materialCode.isEmpty() ? materialCode : materialName;
+                        Map<String, Set<String>> featureGroup = materialFeatureGroups.computeIfAbsent(key, k -> new LinkedHashMap<>());
+                        for (int col : featureCols) {
+                            Cell featureCell = row.getCell(col);
+                            String header = featureHeaders.get(col);
+                            if (header == null) continue;
+                            if (featureCell != null) {
+                                String feature = getCellValueAsString(featureCell);
+                                if (!feature.isEmpty() && !feature.equals(header)) {
+                                    String[] features = feature.split(",");
+                                    for (String f : features) {
+                                        f = f.trim();
+                                        if (!f.isEmpty()) {
+                                            featureGroup.computeIfAbsent(header, h -> new LinkedHashSet<>()).add(f);
                                         }
                                     }
                                 }
@@ -274,10 +268,13 @@ public class ExcelService {
                     
                     // Malzeme özelliklerini logla
                     logger.info("=== Material Features Summary ===");
-                    this.materialFeatures.forEach((code, features) -> {
+                    materialFeatureGroups.forEach((code, features) -> {
                         logger.info("Material Code: '{}'", code);
                         logger.info("Features:");
-                        features.forEach(feature -> logger.info("  - {}", feature));
+                        features.forEach((header, featureSet) -> {
+                            logger.info("  - {}", header);
+                            featureSet.forEach(feature -> logger.info("    - {}", feature));
+                        });
                         logger.info("-------------------");
                     });
                     
@@ -312,11 +309,19 @@ public class ExcelService {
                             material.setDescription("Bu malzeme, belirli teknikler ve formlarla uyumlu çalışabilir.");
                             // Malzeme ikonları için dosya yolu: src/main/resources/static/icons/Malzeme icon/M01.jpg
                             String materialPath = "src/main/resources/static/icons/Malzeme icon/" + material.getId();
-                            // Check for both JPG and PNG extensions
-                            if (new File(materialPath + ".jpg").exists() || new File(materialPath + ".JPG").exists()) {
-                                material.setFilesDirectory(materialPath + ".jpg");
-                            } else if (new File(materialPath + ".png").exists() || new File(materialPath + ".PNG").exists()) {
-                                material.setFilesDirectory(materialPath + ".png");
+                            // Check for all case variations of jpg and png extensions
+                            if (new File(materialPath + ".jpg").exists() || new File(materialPath + ".JPG").exists() ||
+                                new File(materialPath + ".png").exists() || new File(materialPath + ".PNG").exists()) {
+                                // Try each extension in order
+                                if (new File(materialPath + ".jpg").exists()) {
+                                    material.setFilesDirectory(materialPath + ".jpg");
+                                } else if (new File(materialPath + ".JPG").exists()) {
+                                    material.setFilesDirectory(materialPath + ".JPG");
+                                } else if (new File(materialPath + ".png").exists()) {
+                                    material.setFilesDirectory(materialPath + ".png");
+                                } else if (new File(materialPath + ".PNG").exists()) {
+                                    material.setFilesDirectory(materialPath + ".PNG");
+                                }
                             } else {
                                 material.setFilesDirectory(materialPath + ".jpg"); // Default to jpg if no file exists
                             }
@@ -389,44 +394,39 @@ public class ExcelService {
                     // Teknik adlarını ve özelliklerini tutacak map
                     Map<String, Set<String>> techniqueFeatures = new HashMap<>();
                     
-                    // J5'ten başlayarak teknik isimlerini ve E5'ten başlayarak özellikleri oku
-                    for (int i = 4; i <= techniqueSheet.getLastRowNum(); i++) {
-                        Row row = techniqueSheet.getRow(i);
-                        if (row == null) {
-                            logger.debug("Row {} is null", i + 1);
-                            continue;
+                    // Çoklu başlık ve özellikler için
+                    int[] featureCols = {9, 10, 11, 12, 13}; // J, K, L, M, N kolonları
+                    Row headerRow = techniqueSheet.getRow(1); // 2. satır (0-based index)
+                    Map<Integer, String> featureHeaders = new HashMap<>();
+                    for (int col : featureCols) {
+                        if (headerRow != null && headerRow.getCell(col) != null) {
+                            featureHeaders.put(col, getCellValueAsString(headerRow.getCell(col)));
                         }
-                        
+                    }
+                    
+                    // Her teknik kodu için başlık-özellik map'i oluştur
+                    for (int i = 3; i <= techniqueSheet.getLastRowNum(); i++) {
+                        Row row = techniqueSheet.getRow(i);
+                        if (row == null) continue;
                         Cell nameCell = row.getCell(7); // H kolonu (Teknik adı - Türkçe)
                         Cell codeCell = row.getCell(6); // G kolonu
-                        Cell featureCell = row.getCell(4); // E kolonu (PROCESSES - İngilizce)
-                        
-                        logger.debug("Processing row {}: Technique name cell: {}, Feature cell: {}", 
-                            i + 1, nameCell != null ? nameCell.getCellType() : "null", 
-                            featureCell != null ? featureCell.getCellType() : "null");
-                        
-                        if (nameCell != null) {
-                            String techniqueName = getCellValueAsString(nameCell);
-                            String techniqueCode = codeCell != null ? getCellValueAsString(codeCell) : "";
-                            logger.info("Row {}: Reading technique name: '{}' with code: '{}'", i + 1, techniqueName, techniqueCode);
-                            
-                            if (!techniqueName.isEmpty() && !techniqueName.equals("Teknikler") && !techniqueName.equals("Teknik Kataloğu")) {
-                                if (featureCell != null) {
-                                    String feature = getCellValueAsString(featureCell);
-                                    logger.info("Row {}: Reading feature for '{}': '{}'", i + 1, techniqueName, feature);
-                                    
-                                    if (!feature.isEmpty() && !feature.equals("PROCESSES")) {
-                                        // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
-                                        String[] features = feature.split(",");
-                                        for (String f : features) {
-                                            f = f.trim();
-                                            if (!f.isEmpty()) {
-                                                techniqueFeatures.computeIfAbsent(techniqueName, k -> new LinkedHashSet<>()).add(f);
-                                                if (!techniqueCode.isEmpty()) {
-                                                    this.techniqueFeatures.computeIfAbsent(techniqueCode, k -> new LinkedHashSet<>()).add(f);
-                                                }
-                                                logger.info("Added feature '{}' to technique '{}' with code '{}'", f, techniqueName, techniqueCode);
-                                            }
+                        String techniqueName = nameCell != null ? getCellValueAsString(nameCell) : "";
+                        String techniqueCode = codeCell != null ? getCellValueAsString(codeCell) : "";
+                        if (techniqueName.isEmpty() || techniqueName.equals("Teknikler") || techniqueName.equals("Teknik Kataloğu")) continue;
+                        String key = !techniqueCode.isEmpty() ? techniqueCode : techniqueName;
+                        Map<String, Set<String>> featureGroup = techniqueFeatureGroups.computeIfAbsent(key, k -> new LinkedHashMap<>());
+                        for (int col : featureCols) {
+                            Cell featureCell = row.getCell(col);
+                            String header = featureHeaders.get(col);
+                            if (header == null) continue;
+                            if (featureCell != null) {
+                                String feature = getCellValueAsString(featureCell);
+                                if (!feature.isEmpty() && !feature.equals(header)) {
+                                    String[] features = feature.split(",");
+                                    for (String f : features) {
+                                        f = f.trim();
+                                        if (!f.isEmpty()) {
+                                            featureGroup.computeIfAbsent(header, h -> new LinkedHashSet<>()).add(f);
                                         }
                                     }
                                 }
@@ -435,15 +435,18 @@ public class ExcelService {
                     }
                     
                     logger.info("=== Technique Features Summary ===");
-                    techniqueFeatures.forEach((technique, features) -> {
-                        logger.info("Technique: '{}'", technique);
+                    techniqueFeatureGroups.forEach((code, features) -> {
+                        logger.info("Technique Code: '{}'", code);
                         logger.info("Features:");
-                        features.forEach(feature -> logger.info("  - {}", feature));
+                        features.forEach((header, featureSet) -> {
+                            logger.info("  - {}", header);
+                            featureSet.forEach(feature -> logger.info("    - {}", feature));
+                        });
                         logger.info("-------------------");
                     });
                     
                     // Şimdi teknik detaylarını oluştur
-                    for (int i = 4; i <= techniqueSheet.getLastRowNum(); i++) {
+                    for (int i = 3; i <= techniqueSheet.getLastRowNum(); i++) {
                         Row row = techniqueSheet.getRow(i);
                         if (row == null) continue;
                         
@@ -481,13 +484,22 @@ public class ExcelService {
                             }
                         }
                         technique.setDescription("Bu teknik, belirli malzemeler ve formlarla uyumlu çalışabilir.");
-                        // Teknik ikonları için dosya yolu: src/main/resources/static/icons/Teknikler icon/T01.jpg
-                        String techniquePath = "src/main/resources/static/icons/Teknikler icon/" + technique.getId();
-                        // Check for both JPG and PNG extensions
-                        if (new File(techniquePath + ".jpg").exists() || new File(techniquePath + ".JPG").exists()) {
-                            technique.setFilesDirectory(techniquePath + ".jpg");
-                        } else if (new File(techniquePath + ".png").exists() || new File(techniquePath + ".PNG").exists()) {
-                            technique.setFilesDirectory(techniquePath + ".png");
+                        // Teknik ikonları için dosya yolu: src/main/resources/static/icons/Teknikler icon/T01/T01.jpg
+                        String techniqueDir = technique.getId();
+                        String techniquePath = "src/main/resources/static/icons/Teknikler icon/" + techniqueDir + "/" + technique.getId();
+                        // Check for all case variations of jpg and png extensions
+                        if (new File(techniquePath + ".jpg").exists() || new File(techniquePath + ".JPG").exists() ||
+                            new File(techniquePath + ".png").exists() || new File(techniquePath + ".PNG").exists()) {
+                            // Try each extension in order
+                            if (new File(techniquePath + ".jpg").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".jpg");
+                            } else if (new File(techniquePath + ".JPG").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".JPG");
+                            } else if (new File(techniquePath + ".png").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".png");
+                            } else if (new File(techniquePath + ".PNG").exists()) {
+                                technique.setFilesDirectory(techniquePath + ".PNG");
+                            }
                         } else {
                             technique.setFilesDirectory(techniquePath + ".jpg"); // Default to jpg if no file exists
                         }
@@ -565,47 +577,39 @@ public class ExcelService {
                     // Form adlarını ve özelliklerini tutacak map
                     Map<String, Set<String>> formFeatures = new HashMap<>();
                     
-                    // D3'ten başlayarak form isimlerini ve F,G,H kolonlarından özellikleri oku
+                    // Çoklu başlık ve özellikler için
+                    int[] featureCols = {6, 7, 8}; // G, H, I kolonları
+                    Row headerRow = formSheet.getRow(1); // 2. satır (0-based index)
+                    Map<Integer, String> featureHeaders = new HashMap<>();
+                    for (int col : featureCols) {
+                        if (headerRow != null && headerRow.getCell(col) != null) {
+                            featureHeaders.put(col, getCellValueAsString(headerRow.getCell(col)));
+                        }
+                    }
+                    
+                    // Her form kodu için başlık-özellik map'i oluştur
                     for (int i = 2; i <= formSheet.getLastRowNum(); i++) {
                         Row row = formSheet.getRow(i);
-                        if (row == null) {
-                            logger.debug("Row {} is null", i + 1);
-                            continue;
-                        }
-                        
-                        Cell formNameCell = row.getCell(3); // D kolonu
+                        if (row == null) continue;
+                        Cell formNameCell = row.getCell(4); // E kolonu
                         Cell formCodeCell = row.getCell(2); // C kolonu
-                        
-                        logger.debug("Processing row {}: Form cell: {}", 
-                            i + 1, formNameCell != null ? formNameCell.getCellType() : "null");
-                        
-                        if (formNameCell != null) {
-                            String formName = getCellValueAsString(formNameCell);
-                            String formCode = formCodeCell != null ? getCellValueAsString(formCodeCell) : "";
-                            logger.info("Row {}: Reading form name: '{}' with code: '{}'", i + 1, formName, formCode);
-                            
-                            if (!formName.isEmpty() && !formName.equals("Formlar") && !formName.equals("Form Kataloğu")) {
-                                // F, G, H kolonlarından özellikleri oku
-                                for (int col = 5; col <= 7; col++) { // F, G, H kolonları
-                                    Cell featureCell = row.getCell(col);
-                                    if (featureCell != null) {
-                                        String feature = getCellValueAsString(featureCell);
-                                        logger.info("Row {}: Reading feature for '{}' from column {}: '{}'", 
-                                            i + 1, formName, col, feature);
-                                        
-                                        if (!feature.isEmpty() && !feature.equals("Oluşturma") && !feature.equals("Tanımlar") && !feature.equals("Mikro Mimari Örnekler")) {
-                                            // Özellikleri virgülle ayır ve her birini ayrı özellik olarak ekle
-                                            String[] features = feature.split(",");
-                                            for (String f : features) {
-                                                f = f.trim();
-                                                if (!f.isEmpty()) {
-                                                    formFeatures.computeIfAbsent(formName, k -> new LinkedHashSet<>()).add(f);
-                                                    if (!formCode.isEmpty()) {
-                                                        this.formFeatures.computeIfAbsent(formCode, k -> new LinkedHashSet<>()).add(f);
-                                                    }
-                                                    logger.info("Added feature '{}' to form '{}' with code '{}'", f, formName, formCode);
-                                                }
-                                            }
+                        String formName = formNameCell != null ? getCellValueAsString(formNameCell) : "";
+                        String formCode = formCodeCell != null ? getCellValueAsString(formCodeCell) : "";
+                        if (formName.isEmpty() || formName.equals("Formlar") || formName.equals("Form Kataloğu")) continue;
+                        String key = !formCode.isEmpty() ? formCode : formName;
+                        Map<String, Set<String>> featureGroup = formFeatureGroups.computeIfAbsent(key, k -> new LinkedHashMap<>());
+                        for (int col : featureCols) {
+                            Cell featureCell = row.getCell(col);
+                            String header = featureHeaders.get(col);
+                            if (header == null) continue;
+                            if (featureCell != null) {
+                                String feature = getCellValueAsString(featureCell);
+                                if (!feature.isEmpty() && !feature.equals(header)) {
+                                    String[] features = feature.split(",");
+                                    for (String f : features) {
+                                        f = f.trim();
+                                        if (!f.isEmpty()) {
+                                            featureGroup.computeIfAbsent(header, h -> new LinkedHashSet<>()).add(f);
                                         }
                                     }
                                 }
@@ -614,10 +618,13 @@ public class ExcelService {
                     }
                     
                     logger.info("=== Form Features Summary ===");
-                    formFeatures.forEach((form, features) -> {
-                        logger.info("Form: '{}'", form);
+                    formFeatureGroups.forEach((code, features) -> {
+                        logger.info("Form Code: '{}'", code);
                         logger.info("Features:");
-                        features.forEach(feature -> logger.info("  - {}", feature));
+                        features.forEach((header, featureSet) -> {
+                            logger.info("  - {}", header);
+                            featureSet.forEach(feature -> logger.info("    - {}", feature));
+                        });
                         logger.info("-------------------");
                     });
                     
@@ -626,7 +633,7 @@ public class ExcelService {
                         Row row = formSheet.getRow(i);
                         if (row == null) continue;
                         
-                        Cell nameCell = row.getCell(3); // D kolonu
+                        Cell nameCell = row.getCell(4); // E kolonu
                         Cell codeCell = row.getCell(2); // C kolonu
                         
                         if (nameCell == null) continue;
@@ -662,7 +669,23 @@ public class ExcelService {
                         formObj.setDescription("Bu form, belirli malzemeler ve tekniklerle uyumlu çalışabilir.");
                         // Form ikonları için dosya yolu: src/main/resources/static/icons/Form icon/F01/F01.jpg
                         String formDir = formObj.getId();
-                        formObj.setFilesDirectory("src/main/resources/static/icons/Form icon/" + formDir + "/" + formObj.getId() + ".jpg");
+                        String formPath = "src/main/resources/static/icons/Form icon/" + formDir + "/" + formObj.getId();
+                        // Check for all case variations of jpg and png extensions
+                        if (new File(formPath + ".jpg").exists() || new File(formPath + ".JPG").exists() ||
+                            new File(formPath + ".png").exists() || new File(formPath + ".PNG").exists()) {
+                            // Try each extension in order
+                            if (new File(formPath + ".jpg").exists()) {
+                                formObj.setFilesDirectory(formPath + ".jpg");
+                            } else if (new File(formPath + ".JPG").exists()) {
+                                formObj.setFilesDirectory(formPath + ".JPG");
+                            } else if (new File(formPath + ".png").exists()) {
+                                formObj.setFilesDirectory(formPath + ".png");
+                            } else if (new File(formPath + ".PNG").exists()) {
+                                formObj.setFilesDirectory(formPath + ".PNG");
+                            }
+                        } else {
+                            formObj.setFilesDirectory(formPath + ".jpg"); // Default to jpg if no file exists
+                        }
                         formObj.setClickable(true);
                         
                         // Form özelliklerini ekle
@@ -811,5 +834,24 @@ public class ExcelService {
 
     public Set<String> getFormFeatures(String number) {
         return formFeatures.getOrDefault(number, new HashSet<>());
+    }
+
+    public String getMaterialFeatureHeader() {
+        return materialFeatureHeader;
+    }
+
+    // Malzeme kodu veya adı ile başlık-özellik map'i döndür
+    public Map<String, Set<String>> getMaterialFeatureGroups(String number) {
+        return materialFeatureGroups.getOrDefault(number, new LinkedHashMap<>());
+    }
+
+    // Form kodu veya adı ile başlık-özellik map'i döndür
+    public Map<String, Set<String>> getFormFeatureGroups(String number) {
+        return formFeatureGroups.getOrDefault(number, new LinkedHashMap<>());
+    }
+
+    // Teknik kodu veya adı ile başlık-özellik map'i döndür
+    public Map<String, Set<String>> getTechniqueFeatureGroups(String number) {
+        return techniqueFeatureGroups.getOrDefault(number, new LinkedHashMap<>());
     }
 } 
