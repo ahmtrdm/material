@@ -179,31 +179,14 @@ public class ExcelService {
                                 }
                                 
                                 if ("x".equalsIgnoreCase(cellValue) || "1".equals(cellValue) || "true".equalsIgnoreCase(cellValue)) {
-                                    // Form numarasını al (3. satır, H-AG kolonları)
-                                    Cell formNumberCell = formNumberRow.getCell(j);
-                                    String formNumber = "";
-                                    if (formNumberCell != null) {
-                                        switch (formNumberCell.getCellType()) {
-                                            case STRING:
-                                                formNumber = formNumberCell.getStringCellValue();
-                                                break;
-                                            case NUMERIC:
-                                                formNumber = String.format("%02d", (int) formNumberCell.getNumericCellValue());
-                                                break;
-                                        }
-                                    }
-                                    
-                                    if (!formNumber.trim().isEmpty()) {
+                                    String form = formsList.get(j - 7);
+                                    if (form != null) {
                                         Relationship relationship = new Relationship();
-                                        // Numaraları kullan
-                                        relationship.setMaterial(materialNumber.isEmpty() ? material : materialNumber);
-                                        relationship.setTechnique(techniqueNumber.isEmpty() ? technique : techniqueNumber);
-                                        relationship.setForm(formNumber);
+                                        relationship.setMaterial(material);
+                                        relationship.setTechnique(technique);
+                                        relationship.setForm(form);
                                         relationships.add(relationship);
-                                        logger.info("İlişki bulundu (numaralar ile): {} - {} - {}", 
-                                            materialNumber.isEmpty() ? material : materialNumber, 
-                                            techniqueNumber.isEmpty() ? technique : techniqueNumber, 
-                                            formNumber);
+                                        logger.info("İlişki bulundu: {} - {} - {}", material, technique, form);
                                     }
                                 }
                             }
@@ -364,38 +347,10 @@ public class ExcelService {
                             logger.info("=== Processing relationships for material: {} ===", name);
                             int relationshipCount = 0;
                             for (Relationship rel : relationships) {
-                                // Malzeme numarasını al
-                                String materialNumber = materialNumbers.get(name);
-                                String materialKey = materialNumber != null ? materialNumber : name;
-                                
-                                if (rel.getMaterial().equals(materialKey)) {
+                                if (rel.getMaterial().equals(name)) {
                                     relationshipCount++;
-                                    // Teknik numarasını al
-                                    String techniqueName = "";
-                                    for (Map.Entry<String, String> entry : techniqueNumbers.entrySet()) {
-                                        if (entry.getValue().equals(rel.getTechnique())) {
-                                            techniqueName = entry.getKey();
-                                            break;
-                                        }
-                                    }
-                                    if (techniqueName.isEmpty()) {
-                                        techniqueName = rel.getTechnique(); // Eğer numara bulunamazsa direkt kullan
-                                    }
-                                    
-                                    // Form numarasını al
-                                    String formName = "";
-                                    for (Map.Entry<String, String> entry : formNumbers.entrySet()) {
-                                        if (entry.getValue().equals(rel.getForm())) {
-                                            formName = entry.getKey();
-                                            break;
-                                        }
-                                    }
-                                    if (formName.isEmpty()) {
-                                        formName = rel.getForm(); // Eğer numara bulunamazsa direkt kullan
-                                    }
-                                    
-                                    WebObject relatedTech = techniques.get(techniqueName);
-                                    WebObject relatedForm = forms.get(formName);
+                                    WebObject relatedTech = techniques.get(rel.getTechnique());
+                                    WebObject relatedForm = forms.get(rel.getForm());
                                     
                                     if (relatedTech != null) {
                                         material.addRelatedObject(relatedTech);
@@ -448,6 +403,7 @@ public class ExcelService {
                             featureHeaders.put(col, getCellValueAsString(headerRow.getCell(col)));
                         }
                     }
+                    
                     // Her teknik kodu için başlık-özellik map'i oluştur
                     for (int i = 3; i <= techniqueSheet.getLastRowNum(); i++) {
                         Row row = techniqueSheet.getRow(i);
@@ -569,38 +525,10 @@ public class ExcelService {
                         logger.info("=== Processing relationships for technique: {} ===", name);
                         int relationshipCount = 0;
                         for (Relationship rel : relationships) {
-                            // Teknik numarasını al
-                            String techniqueNumber = techniqueNumbers.get(name);
-                            String techniqueKey = techniqueNumber != null ? techniqueNumber : name;
-                            
-                            if (rel.getTechnique().equals(techniqueKey)) {
+                            if (rel.getTechnique().equals(name)) {
                                 relationshipCount++;
-                                // Malzeme numarasını al
-                                String materialName = "";
-                                for (Map.Entry<String, String> entry : materialNumbers.entrySet()) {
-                                    if (entry.getValue().equals(rel.getMaterial())) {
-                                        materialName = entry.getKey();
-                                        break;
-                                    }
-                                }
-                                if (materialName.isEmpty()) {
-                                    materialName = rel.getMaterial(); // Eğer numara bulunamazsa direkt kullan
-                                }
-                                
-                                // Form numarasını al
-                                String formName = "";
-                                for (Map.Entry<String, String> entry : formNumbers.entrySet()) {
-                                    if (entry.getValue().equals(rel.getForm())) {
-                                        formName = entry.getKey();
-                                        break;
-                                    }
-                                }
-                                if (formName.isEmpty()) {
-                                    formName = rel.getForm(); // Eğer numara bulunamazsa direkt kullan
-                                }
-                                
-                                WebObject relatedMat = materials.get(materialName);
-                                WebObject relatedForm = forms.get(formName);
+                                WebObject relatedMat = materials.get(rel.getMaterial());
+                                WebObject relatedForm = forms.get(rel.getForm());
                                 
                                 if (relatedMat != null) {
                                     technique.addRelatedObject(relatedMat);
@@ -780,38 +708,10 @@ public class ExcelService {
                         logger.info("=== Processing relationships for form: {} ===", name);
                         int relationshipCount = 0;
                         for (Relationship rel : relationships) {
-                            // Form numarasını al
-                            String formNumber = formNumbers.get(name);
-                            String formKey = formNumber != null ? formNumber : name;
-                            
-                            if (rel.getForm().equals(formKey)) {
+                            if (rel.getForm().equals(name)) {
                                 relationshipCount++;
-                                // Malzeme numarasını al
-                                String materialName = "";
-                                for (Map.Entry<String, String> entry : materialNumbers.entrySet()) {
-                                    if (entry.getValue().equals(rel.getMaterial())) {
-                                        materialName = entry.getKey();
-                                        break;
-                                    }
-                                }
-                                if (materialName.isEmpty()) {
-                                    materialName = rel.getMaterial(); // Eğer numara bulunamazsa direkt kullan
-                                }
-                                
-                                // Teknik numarasını al
-                                String techniqueName = "";
-                                for (Map.Entry<String, String> entry : techniqueNumbers.entrySet()) {
-                                    if (entry.getValue().equals(rel.getTechnique())) {
-                                        techniqueName = entry.getKey();
-                                        break;
-                                    }
-                                }
-                                if (techniqueName.isEmpty()) {
-                                    techniqueName = rel.getTechnique(); // Eğer numara bulunamazsa direkt kullan
-                                }
-                                
-                                WebObject relatedMat = materials.get(materialName);
-                                WebObject relatedTech = techniques.get(techniqueName);
+                                WebObject relatedMat = materials.get(rel.getMaterial());
+                                WebObject relatedTech = techniques.get(rel.getTechnique());
                                 
                                 if (relatedMat != null) {
                                     formObj.addRelatedObject(relatedMat);
